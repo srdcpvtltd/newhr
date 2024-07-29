@@ -17,11 +17,16 @@ class AssetAssignment extends Model
         'return_date',
         'returned',
         'damaged',
-        'cost_of_damage'
+        'cost_of_damage',
+        'paid',
+        'damage_reason',
+        'assign_status',
+        'return_status'
     ];
 
     protected $attributes = [
-        'returned' => 0
+        'returned' => 0,
+        'assign_status' => 1
     ];
 
     const RECORDS_PER_PAGE = 20;

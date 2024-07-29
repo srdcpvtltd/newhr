@@ -29,13 +29,49 @@ class AssetAssignmentController extends Controller
         $this->authorize('list_type');
         try {
             $select = ['*'];
-            $with = ['assets','users'];
+            $with = ['assets', 'users'];
             $assetLists = $this->assetAsignmentRepo->getAllAssetAssignments($select, $with);
             // dd($assetLists);
             return view($this->view . 'index', compact('assetLists'));
-        } catch (\Exception $exception) {    
+        } catch (\Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }
+    }
+
+    public function return(Request $request)
+    {
+        $user_id = $request->user_id;
+        $asset_id = $request->asset_id;
+        $cost_of_damage = $request->cost_of_damage ? $request->cost_of_damage :  0;
+        $amount_paid = $request->amount_paid ? $request->amount_paid :  null;
+        $damage_reason = $request->damage_reason ? $request->damage_reason :  null;
+
+        $q = AssetAssignment::where('user_id',$user_id)->where('asset_id',$asset_id);
+        if($request->damage == 0){
+            $result = $q->update([
+                'return_date' => date('Y-m-d',strtotime($request->return_date)),
+                'returned' => 1,
+                'damaged' => $request->damage,
+                'cost_of_damage' => null,
+                'return_status' => 1
+            ]);
+
+            dd($result);
+        }else{
+            $result = $q->update([
+                'return_date' => date('Y-m-d',strtotime($request->return_date)),
+                'returned' => 1,
+                'damaged' => $request->damage,
+                'cost_of_damage' => $cost_of_damage,
+                'paid' => $amount_paid ,
+                'damage_reason' => $damage_reason,
+                'return_status' => $amount_paid == 1 ? 1 : 0,
+            ]);
+
+            dd($result);
+
+        }
+
     }
 
     public function create()

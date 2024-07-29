@@ -31,7 +31,7 @@
                     <li class="nav-item">
                         <a href="{{route('admin.asset_assignment.index')}}"
                            data-href="{{route('admin.asset_assignment.index')}}"
-                           class="nav-link {{ request()->routeIs('admin.asset_assignment.*') ? 'active' : '' }}">Asset Management</a>
+                           class="nav-link {{ request()->routeIs('admin.asset_assignment.*') ? 'active' : '' }}">Asset Assignment</a>
                     </li>
                 @endcan
             </ul>

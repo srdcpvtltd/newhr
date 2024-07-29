@@ -23,6 +23,10 @@ return new class extends Migration
             $table->integer('returned')->nullable();
             $table->integer('damaged')->nullable();
             $table->string('cost_of_damage')->nullable();
+            $table->string('paid')->nullable();
+            $table->string('damage_reason')->nullable();
+            $table->string('assign_status')->nullable();
+            $table->string('return_status')->nullable();
             $table->timestamps();
 
             $table->foreign('asset_type_id')->references('id')->on('asset_types');

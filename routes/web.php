@@ -299,6 +299,7 @@ Route::group([
             'except' => ['destroy']
         ]);
         Route::get('asset-assignments/get-All-Assets/{assetType_id}', [AssetAssignmentController::class, 'getAllAssetsByAssetTypeId'])->name('assets.getAllAssetsByAssetTypeId');
+        Route::post('asset-assignments/asset-return', [AssetAssignmentController::class, 'return'])->name('asset_return');
 
         /** Salary Component route */
         Route::resource('salary-components', SalaryComponentController::class,[
