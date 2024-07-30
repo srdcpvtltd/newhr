@@ -9,6 +9,7 @@ use App\Repositories\AssetAssignmentRepository;
 use App\Repositories\UserRepository;
 use App\Services\AssetManagement\AssetService;
 use App\Services\AssetManagement\AssetTypeService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -35,6 +36,14 @@ class AssetAssignmentController extends Controller
         } catch (\Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }
+    }
+
+    public function downloadPDF()
+    {
+        $data = ["name"=>"Testing"];
+        $pdf = Pdf::loadView($this->view .'pdf.assignmentAgreement');
+        $pdf->setPaper('A4', 'portrait');
+        return $pdf->download('Asset Assignment greement.pdf');
     }
 
     public function return(Request $request)

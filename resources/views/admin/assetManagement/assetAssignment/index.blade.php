@@ -131,7 +131,7 @@
                                         @if($value->return_status != 1)
                                         <li><a class="dropdown-item active" data-toggle="modal" data-target="#exampleModalCenter" href="#">Return Asset</a></li>
                                         @endif
-                                        <li><a class="dropdown-item" href="#">Asset Assignment Agreement</a></li>
+                                        <li><a class="dropdown-item" href="{{route('admin.download.pdf')}}">Asset Assignment Agreement</a></li>
                                         <li><a class="dropdown-item" href="#">Asset Returned Agreement</a></li>
 
                                     </ul>

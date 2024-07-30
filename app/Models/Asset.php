@@ -24,8 +24,6 @@ class Asset extends Model
         'warranty_available',
         'warranty_end_date',
         'is_available',
-        'assigned_to',
-        'assigned_date',
         'note',
         'created_by',
         'updated_by'

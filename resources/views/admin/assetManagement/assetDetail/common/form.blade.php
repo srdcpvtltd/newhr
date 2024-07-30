@@ -103,29 +103,6 @@
     </div>
 
     <div class="col-lg-6 col-md-6 mb-4">
-        <label for="assigned_to" class="form-label">Assign To </label>
-        <select class="form-select" id="assigned_to" name="assigned_to" >
-            <option value="" {{isset($assetDetail) || old('assigned_to') ? '': 'selected'}}  >Select Employee</option>
-            @foreach($employees as $key =>  $value)
-                <option value="{{$value->id}}" {{ isset($assetDetail) && ($assetDetail->assigned_to ) == $value->id || old('assigned_to') == $value->id ? 'selected': old('assigned_to') }}>
-                    {{ucfirst($value->name)}}
-                </option>
-            @endforeach
-        </select>
-    </div>
-
-    <div class="col-lg-6 col-md-6 mb-4">
-        <label for="assigned_date" class="form-label">Assigned Date</label>
-        <input type="date"
-               class="form-control"
-               id="assigned_date"
-               name="assigned_date"
-               value="{{ ( isset($assetDetail) ? ($assetDetail->assigned_date): old('assigned_date') )}}"
-               autocomplete="off"
-        >
-    </div>
-
-    <div class="col-lg-6 col-md-6 mb-4">
         <label for="image" class="form-label">Upload Image <span style="color: red">*</span> </label>
         <input class="form-control"
                type="file"

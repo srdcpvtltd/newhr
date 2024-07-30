@@ -298,6 +298,7 @@ Route::group([
         Route::resource('asset_assignment', AssetAssignmentController::class,[
             'except' => ['destroy']
         ]);
+        Route::get('/download-pdf', [AssetAssignmentController::class, 'downloadPDF'])->name('download.pdf');
         Route::get('asset-assignments/get-All-Assets/{assetType_id}', [AssetAssignmentController::class, 'getAllAssetsByAssetTypeId'])->name('assets.getAllAssetsByAssetTypeId');
         Route::post('asset-assignments/asset-return', [AssetAssignmentController::class, 'return'])->name('asset_return');
 

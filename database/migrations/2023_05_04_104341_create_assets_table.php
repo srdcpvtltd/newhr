@@ -25,8 +25,6 @@ return new class extends Migration
             $table->boolean('warranty_available')->default(0);
             $table->date('warranty_end_date')->nullable();
             $table->boolean('is_available')->default(1);
-            $table->unsignedBigInteger('assigned_to')->nullable();
-            $table->date('assigned_date')->nullable();
             $table->text('note')->nullable();
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by')->nullable();
