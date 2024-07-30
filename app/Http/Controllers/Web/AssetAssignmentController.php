@@ -31,7 +31,6 @@ class AssetAssignmentController extends Controller
             $select = ['*'];
             $with = ['assets', 'users'];
             $assetLists = $this->assetAsignmentRepo->getAllAssetAssignments($select, $with);
-            // dd($assetLists);
             return view($this->view . 'index', compact('assetLists'));
         } catch (\Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
@@ -46,32 +45,35 @@ class AssetAssignmentController extends Controller
         $amount_paid = $request->amount_paid ? $request->amount_paid :  null;
         $damage_reason = $request->damage_reason ? $request->damage_reason :  null;
 
-        $q = AssetAssignment::where('user_id',$user_id)->where('asset_id',$asset_id);
-        if($request->damage == 0){
+        $q = AssetAssignment::where('user_id', $user_id)->where('asset_id', $asset_id);
+
+        if ($request->damage == 0 || $amount_paid == 1) {
+            Asset::where('id', $asset_id)->update([
+                'is_available' => 1
+            ]);
+        }
+
+        if ($request->damage == 0) {
             $result = $q->update([
-                'return_date' => date('Y-m-d',strtotime($request->return_date)),
+                'return_date' => date('Y-m-d', strtotime($request->return_date)),
                 'returned' => 1,
                 'damaged' => $request->damage,
                 'cost_of_damage' => null,
                 'return_status' => 1
             ]);
-
-            dd($result);
-        }else{
+            return $this->index();
+        } else {
             $result = $q->update([
-                'return_date' => date('Y-m-d',strtotime($request->return_date)),
+                'return_date' => date('Y-m-d', strtotime($request->return_date)),
                 'returned' => 1,
                 'damaged' => $request->damage,
                 'cost_of_damage' => $cost_of_damage,
-                'paid' => $amount_paid ,
+                'paid' => $amount_paid,
                 'damage_reason' => $damage_reason,
                 'return_status' => $amount_paid == 1 ? 1 : 0,
             ]);
-
-            dd($result);
-
+            return $this->index();
         }
-
     }
 
     public function create()
@@ -107,16 +109,22 @@ class AssetAssignmentController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
         $this->authorize('create_assets');
         try {
-            AssetAssignment::create([
+            $result = AssetAssignment::create([
                 'asset_type_id' => $request->type_id,
                 'asset_id' => $request->asset,
                 'user_id' => $request->assigned_to,
                 'assign_date' => $request->assign_date
             ]);
-            return redirect()->route('admin.asset_assignment.index')->with('success', 'Asset Assigned Successfully');
+            if ($result) {
+                Asset::where('id', $request->asset)->update([
+                    'is_available' => 0
+                ]);
+                return redirect()->route('admin.asset_assignment.index')->with('success', 'Asset Assigned Successfully');
+            } else {
+                return redirect()->route('admin.asset_assignment.index')->with('error', 'Asset Assignment Failed');
+            }
         } catch (Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }

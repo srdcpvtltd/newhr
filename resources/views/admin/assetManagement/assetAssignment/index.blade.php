@@ -32,7 +32,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
 <section class="content">
     @include('admin.section.flash_message')
-    @include('admin.assetManagement.types.common.breadcrumb')
+    @include('admin.assetManagement.assetAssignment.breadCrumb')
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
@@ -43,10 +43,9 @@
                             <th>Name</th>
                             <th class="text-center">Asset</th>
                             <th class="text-center">Assigned Date</th>
-                            <!-- <th class="text-center">Returned</th> -->
+                            <th class="text-center">Return Date</th>
                             <th class="text-center">Damaged</th>
                             <th class="text-center">Damage Cost</th>
-
                             <th class="text-center">Recover</th>
                             <th class="text-center">Returned Status</th>
                             @canany(['edit_type','delete_type'])
@@ -66,22 +65,22 @@
                             <td class="text-center">
                                 {{$value->assign_date}}
                             </td>
-                            <!-- @if($value->returned != 0)
+                            @if($value->return_date != null)
                             <td class="text-center">
-                                Yes
+                               {{$value->return_date}}
                             </td>
                             @else
                             <td class="text-center">
-                                No
-                            </td> -->
-                            <!-- @endif -->
+                                <b>- -</b>
+                            </td> 
+                            @endif
                             @if($value->damaged != null || $value->damaged == 1)
                             <td class="text-center">
                                 Yes
                             </td>
                             @elseif($value->damaged == null)
                             <td class="text-center">
-                                <b> - -</b>
+                                <b>- -</b>
                             </td>
                             @else
                             <td class="text-center">
@@ -94,12 +93,12 @@
                             </td>
                             @else
                             <td class="text-center">
-                                <b> - -</b>
+                                <b>- -</b>
                             </td>
                             @endif
                             @if($value->paid == null)
                             <td class="text-center">
-                                <b> - -</b>
+                                <b>- -</b>
                             </td>
                             @elseif($value->paid == 0)
                             <td class="text-center">
@@ -113,7 +112,7 @@
 
                             @if($value->return_status == null)
                             <td class="text-center">
-                                <b> - -</b>
+                                <b>Pending</b>
                             </td>
                             @elseif($value->return_status == 0)
                             <td class="text-center">
@@ -129,8 +128,9 @@
                                     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #000;background-color: #fff; border-color: #fff;">
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-dark">
-                                        @if()
+                                        @if($value->return_status != 1)
                                         <li><a class="dropdown-item active" data-toggle="modal" data-target="#exampleModalCenter" href="#">Return Asset</a></li>
+                                        @endif
                                         <li><a class="dropdown-item" href="#">Asset Assignment Agreement</a></li>
                                         <li><a class="dropdown-item" href="#">Asset Returned Agreement</a></li>
 
