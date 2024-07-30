@@ -1,10 +1,8 @@
 <script>
     $('#type').change(function() {
-        console.log("comming to type");
         let selectedAssetTypeId = $('#type option:selected').val();
         console.log(selectedAssetTypeId);
-        url= "{{ url('admin/asset-assignments/get-All-Assets') }}" + '/' + selectedAssetTypeId;
-        console.log(url);
+        url = "{{ url('admin/asset-assignments/get-All-Assets') }}" + '/' + selectedAssetTypeId;
         let assetId = null;
         $('#assign_asset').empty();
         if (selectedAssetTypeId) {
@@ -12,8 +10,12 @@
                 type: 'GET',
                 url: "{{ url('admin/asset-assignments/get-All-Assets') }}" + '/' + selectedAssetTypeId,
             }).done(function(response) {
+                console.log(response.data.length);
                 if (!selectedAssetTypeId) {
-                    $('#assign_asset').append('<option disabled  selected >Select Department</option>');
+                    $('#assign_asset').append('<option disabled  selected >Select Type first</option>');
+                }
+                if (response.data.length == 0) {
+                    $('#assign_asset').append('<option disabled  selected >No Assets</option>');
                 }
                 response.data.forEach(function(data) {
                     $('#assign_asset').append('<option ' + ((data.id === selectedAssetTypeId) ? "selected" : '') + ' value="' + data.id + '" >' + capitalize(data.name) + '</option>');

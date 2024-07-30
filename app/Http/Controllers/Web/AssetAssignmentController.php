@@ -103,8 +103,8 @@ class AssetAssignmentController extends Controller
     public function getAllAssetsByAssetTypeId($id)
     {
 
-        $assets =  Asset::where('type_id', $id)->get(['id', 'name']);
-
+        $assets =  Asset::where('type_id', $id)->where('is_available',1)->get(['id', 'name']);
+        // dd($assets);
         if ($assets) {
             return response()->json([
                 'data' => $assets
@@ -118,11 +118,16 @@ class AssetAssignmentController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request->asset);
         $this->authorize('create_assets');
         try {
+
+            if($request->asset == null){
+                return redirect()->route('admin.asset_assignment.index')->with('danger', "fields Can't be Empty");
+            }
             $result = AssetAssignment::create([
                 'asset_type_id' => $request->type_id,
-                'asset_id' => $request->asset,
+                'asset_id' => $request->asset, 
                 'user_id' => $request->assigned_to,
                 'assign_date' => $request->assign_date
             ]);
