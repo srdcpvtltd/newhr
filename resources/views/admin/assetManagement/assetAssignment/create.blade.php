@@ -10,7 +10,7 @@
 
     @include('admin.section.flash_message')
 
-    @include('admin.assetManagement.assetDetail.common.breadcrumb')
+    @include('admin.assetManagement.assetAssignment.breadCrumb')
 
     <div class="card">
         <div class="card-body">

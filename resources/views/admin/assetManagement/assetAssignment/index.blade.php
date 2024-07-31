@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title','Asset Types')
+@section('title','Asset Assignments')
 @section('action','Assignments')
 @section('button')
 @can('create_type')
@@ -54,6 +54,13 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <?php
+                        $changeColor = [
+                            0 => 'danger',
+                            1 => 'success',
+                            null => 'warning'
+                        ]
+                        ?>
                         <tr>
                             @forelse($assetLists as $key => $value)
                         <tr>
@@ -67,12 +74,12 @@
                             </td>
                             @if($value->return_date != null)
                             <td class="text-center">
-                               {{$value->return_date}}
+                                {{$value->return_date}}
                             </td>
                             @else
                             <td class="text-center">
                                 <b>- -</b>
-                            </td> 
+                            </td>
                             @endif
                             @if($value->damaged != null || $value->damaged == 1)
                             <td class="text-center">
@@ -102,25 +109,21 @@
                             </td>
                             @elseif($value->paid == 0)
                             <td class="text-center">
-                                <b>Pending</b>
+                                <h6 style="border-radius: 5px; padding: 4px; opacity: 0.6;font-family: serif;" class="btn-{{$changeColor[$value->paid]}}">Unpaid</h6>
                             </td>
                             @else
                             <td class="text-center">
-                                <b>Paid</b>
+                                <h6 style="border-radius: 5px; padding: 4px; opacity: 0.6;font-family: serif;" class="btn-{{$changeColor[$value->paid]}}">Paid</h6>
                             </td>
                             @endif
 
-                            @if($value->return_status == null)
+                            @if($value->return_status == null || $value->return_status == 0)
                             <td class="text-center">
-                                <b>Pending</b>
-                            </td>
-                            @elseif($value->return_status == 0)
-                            <td class="text-center">
-                                <b>Pending</b>
+                                <h6 style="border-radius: 5px; padding: 4px; opacity: 0.6;font-family: serif;" class="btn-{{$changeColor[null]}}">Pending</h6>
                             </td>
                             @else
                             <td class="text-center">
-                                <b>Completed</b>
+                                <h6 style="border-radius: 5px; padding: 4px; opacity: 0.6;font-family: serif;" class="btn-{{$changeColor[$value->return_status]}}">Completed</h6>
                             </td>
                             @endif
                             <td class="text-center">
@@ -129,20 +132,22 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-dark">
                                         @if($value->return_status != 1)
-                                        <li><a class="dropdown-item active" data-toggle="modal" data-target="#exampleModalCenter" href="#">Return Asset</a></li>
-                                        @endif
+                                        <li><a class="dropdown-item active" data-toggle="modal" data-target="#exampleModalCenter{{ $value->id }}" href="#">Return Asset</a></li>
                                         <li><a class="dropdown-item" href="{{route('admin.download.pdf')}}">Asset Assignment Agreement</a></li>
-                                        <li><a class="dropdown-item" href="#">Asset Returned Agreement</a></li>
-
+                                        <li><a class="dropdown-item" href="{{route('admin.download.return.pdf')}}">Asset Returned Agreement</a></li>
+                                        @else
+                                        <li><a class="dropdown-item active" href="{{route('admin.download.pdf')}}">Asset Assignment Agreement</a></li>
+                                        <li><a class="dropdown-item" href="{{route('admin.download.return.pdf')}}">Asset Returned Agreement</a></li>
+                                        @endif
                                     </ul>
                                 </div>
                             </td>
                             <!-- Modal -->
-                            <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal fade" id="exampleModalCenter{{ $value->id }}" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document" style="top: auto;">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+                                            <h5 class="modal-title" id="exampleModalLongTitle">Asset Return</h5>
                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
@@ -152,7 +157,7 @@
                                                 @csrf
                                                 <div class="form-group">
                                                     <label for="damage">Damage</label>
-                                                    <select name="damage" class="form-select" id="damageSelect" aria-label="Default select example">
+                                                    <select name="damage" class="form-select damage_select " id="damageSelect" aria-label="Default select example">
                                                         <option selected>Open this select menu</option>
                                                         <option value="1">Yes</option>
                                                         <option value="0">No</option>
@@ -160,34 +165,41 @@
                                                 </div>
 
                                                 <!-- Fields to be shown when "Yes" is selected -->
-                                                <div id="damageFields" style="display: none;">
+                                                <div class="damageFields" style="display: none;">
                                                     <div class="form-group">
                                                         <label for="cost_of_damage">Damage Cost</label>
-                                                        <input name="cost_of_damage" type="number" class="form-control" id="damageCost" placeholder="Enter damage cost">
+                                                        <input name="cost_of_damage" value="{{$value->cost_of_damage}}" type="number" class="form-control damage_cost" id="damageCost" placeholder="Enter damage cost">
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="amountPaid">Amount Paid</label>
                                                         <!-- <input type="number" class="form-control" id="amountPaid" placeholder="Enter amount paid"> -->
-                                                        <select name="amount_paid" class="form-select" id="amountPaid" aria-label="Default select example">
+                                                        <select name="amount_paid" class="form-select amount_paid" id="amountPaid" aria-label="Default select example">
+                                                            @if($value->paid != null )
+                                                            <option hidden  value="{{$value->paid}}">{{\App\Models\AssetAssignment::BOOLEAN_DATA[$value->paid]}}</option>
+                                                            <option value="1">Yes</option>
+                                                            <option value="0">No</option>
+                                                            @else
                                                             <option selected value="{{null}}">Open this select menu</option>
                                                             <option value="1">Yes</option>
                                                             <option value="0">No</option>
+                                                            @endif
                                                         </select>
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="reason">Reason</label>
-                                                        <textarea name="damage_reason" class="form-control" id="reason" rows="3" placeholder="Enter reason"></textarea>
+                                                        <textarea name="damage_reason" class="form-control damage_reason" id="reason" rows="3" placeholder="Enter reason"></textarea>
                                                     </div>
                                                 </div>
                                                 <!-- Field to be shown for both options -->
-                                                <div id="returnDateField" style="display: none;">
+                                                <div class="returnDateField" style="display: none;">
                                                     <div class="form-group">
                                                         <label for="returnDate">Return Date</label>
-                                                        <input name="return_date" type="date" class="form-control" id="returnDate">
+                                                        <input name="return_date" type="date" value="{{ $value->return_date ? date('Y-m-d', strtotime($value->return_date)) : null }}"  class="form-control returned_date" id="returnDate">
                                                     </div>
                                                 </div>
                                                 <input type="hidden" name="user_id" value="{{$value->user_id}}">
                                                 <input type="hidden" name="asset_id" value="{{$value->asset_id}}">
+                                                <input type="hidden" name="asset_assignment_id" value="{{$value->id}}">
 
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -212,37 +224,56 @@
             </div>
         </div>
     </div>
-
-    <!-- modal starts from here -->
-
-    <!-- Button trigger modal -->
-    <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-  Launch demo modal
-</button> -->
-
-
-
 </section>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const damageSelect = document.getElementById("damageSelect");
-        const damageFields = document.getElementById("damageFields");
-        const returnDateField = document.getElementById("returnDateField");
+        const damageSelects = document.getElementsByClassName("damage_select");
+        const damageFields = document.getElementsByClassName("damageFields");
+        const returnDateFields = document.getElementsByClassName("returnDateField");
 
-        damageSelect.addEventListener("change", function() {
-            if (damageSelect.value == "1") {
-                // Show all fields if 'Yes' is selected
-                damageFields.style.display = "block";
-                returnDateField.style.display = "block";
-            } else if (damageSelect.value == "0") {
-                // Show only the return date if 'No' is selected
-                damageFields.style.display = "none";
-                returnDateField.style.display = "block";
-            } else {
-                // Hide all fields if no valid option is selected
-                damageFields.style.display = "none";
-                returnDateField.style.display = "none";
-            }
+        Array.from(damageSelects).forEach((damageSelect, index) => {
+            damageSelect.addEventListener("change", function() {
+                console.log("Change event triggered for modal", index);
+                const damageCostInput = damageFields[index].querySelector("#damageCost");
+                const amountPaidSelect = damageFields[index].querySelector("#amountPaid");
+                const damageReasonTextarea = damageFields[index].querySelector("#reason");
+                const returnDateInput = returnDateFields[index].querySelector("#returnDate");
+
+                if (damageSelect.value == "1") {
+                    // Show all fields if 'Yes' is selected
+                    damageFields[index].style.display = "block";
+                    returnDateFields[index].style.display = "block";
+
+                    // Make damage-related fields mandatory
+                    damageCostInput.setAttribute("required", "required");
+                    amountPaidSelect.setAttribute("required", "required");
+                    damageReasonTextarea.setAttribute("required", "required");
+                    returnDateInput.setAttribute("required", "required");
+                } else if (damageSelect.value == "0") {
+                    // Show only the return date if 'No' is selected
+                    damageFields[index].style.display = "none";
+                    returnDateFields[index].style.display = "block";
+
+                    // Remove mandatory attribute from damage-related fields
+                    damageCostInput.removeAttribute("required");
+                    amountPaidSelect.removeAttribute("required");
+                    damageReasonTextarea.removeAttribute("required");
+
+                    // Make only the return date mandatory
+                    returnDateInput.setAttribute("required", "required");
+                } else {
+                    // Hide all fields if no valid option is selected
+                    damageFields[index].style.display = "none";
+                    returnDateFields[index].style.display = "none";
+
+                    // Remove mandatory attribute from all fields
+                    damageCostInput.removeAttribute("required");
+                    amountPaidSelect.removeAttribute("required");
+                    damageReasonTextarea.removeAttribute("required");
+                    returnDateInput.removeAttribute("required");
+                }
+            });
         });
     });
 </script>

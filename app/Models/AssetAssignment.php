@@ -29,6 +29,10 @@ class AssetAssignment extends Model
         'assign_status' => 1
     ];
 
+    const BOOLEAN_DATA = [
+        0 => 'No',
+        1 => 'Yes'
+    ];
     const RECORDS_PER_PAGE = 20;
 
     public function users(){

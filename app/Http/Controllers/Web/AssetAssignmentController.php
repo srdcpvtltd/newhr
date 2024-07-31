@@ -38,23 +38,75 @@ class AssetAssignmentController extends Controller
         }
     }
 
-    public function downloadPDF()
+    public function downloadAssignmentPDF()
     {
-        $data = ["name"=>"Testing"];
-        $pdf = Pdf::loadView($this->view .'pdf.assignmentAgreement');
+        $customers = [
+            'name' => 'Jyotiranjan Sahoo',
+            'address' => 'Bhubaneswar',
+            'city' => 'Bhubaneswar',
+            'state' => 'Odisha',
+            'zip' => '751015',
+            'phone' => '7609942076',
+            'email' => 'jyotranjansahoo767@gmail.com'
+        ];
+
+        $items = [
+            ['description' => 'Product 1', 'quantity' => 2, 'unit_price' => 25.00],
+            ['description' => 'Product 2', 'quantity' => 1, 'unit_price' => 15.00],
+            ['description' => 'Product 3', 'quantity' => 3, 'unit_price' => 10.00],
+        ];
+
+        $subtotal = collect($items)->sum(function ($item) {
+            return $item['quantity'] * $item['unit_price'];
+        });
+
+        $amountPaid = 30.00; // Example amount paid
+        $pdf = Pdf::loadView($this->view .'pdf.assignmentAgreement',compact('customers', 'items', 'subtotal', 'amountPaid'));
         $pdf->setPaper('A4', 'portrait');
-        return $pdf->download('Asset Assignment greement.pdf');
+        return $pdf->download('Asset Assignment Agreement.pdf');
+    }
+
+    public function downloadReturnPDF()
+    {
+        $customers = [
+            'name' => 'Jyotiranjan Sahoo',
+            'address' => 'Bhubaneswar',
+            'city' => 'Bhubaneswar',
+            'state' => 'Odisha',
+            'zip' => '751015',
+            'phone' => '7609942076',
+            'email' => 'jyotranjansahoo767@gmail.com'
+        ];
+
+        $items = [
+            ['description' => 'Product 1', 'quantity' => 2, 'unit_price' => 25.00],
+            ['description' => 'Product 2', 'quantity' => 1, 'unit_price' => 15.00],
+            ['description' => 'Product 3', 'quantity' => 3, 'unit_price' => 10.00],
+        ];
+
+        $subtotal = collect($items)->sum(function ($item) {
+            return $item['quantity'] * $item['unit_price'];
+        });
+
+        $amountPaid = 30.00; // Example amount paid
+        $pdf = Pdf::loadView($this->view .'pdf.returnAgreement',compact('customers', 'items', 'subtotal', 'amountPaid'));
+        $pdf->setPaper('A4', 'portrait');
+        return $pdf->download('Asset Retuned Agreement.pdf');
     }
 
     public function return(Request $request)
     {
+        // dd($request->all());
+        $id = $request->asset_assignment_id;
         $user_id = $request->user_id;
         $asset_id = $request->asset_id;
         $cost_of_damage = $request->cost_of_damage ? $request->cost_of_damage :  0;
-        $amount_paid = $request->amount_paid ? $request->amount_paid :  null;
+        $amount_paid = $request->amount_paid != null ? $request->amount_paid :  null;
         $damage_reason = $request->damage_reason ? $request->damage_reason :  null;
+        // dd($amount_paid);
 
-        $q = AssetAssignment::where('user_id', $user_id)->where('asset_id', $asset_id);
+        $q = AssetAssignment::where('id', $id)->where('user_id', $user_id)->where('asset_id', $asset_id);
+        // dd($q->get()->toArray());
 
         if ($request->damage == 0 || $amount_paid == 1) {
             Asset::where('id', $asset_id)->update([
