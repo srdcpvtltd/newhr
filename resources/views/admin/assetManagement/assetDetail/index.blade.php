@@ -99,6 +99,10 @@
                         <div class="d-flex float-lg-end">
                             <button type="submit" class="btn btn-block btn-secondary me-2">Filter</button>
                             <a href="{{route('admin.assets.index')}}" class="btn btn-block btn-primary">Reset</a>
+                            <button type="button" id="download-csv-report"
+                                    data-href="{{route('admin.assets.index' )}}"
+                                    class="btn btn-block btn-secondary form-control me-md-2 me-0 mb-4">CSV Export
+                            </button>
                         </div>
                     </div>
                 </div>

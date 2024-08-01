@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Exports\AssetListExport;
+use App\Exports\AttendanceDayWiseExport;
 use App\Http\Controllers\Controller;
 use App\Repositories\UserRepository;
 use App\Requests\AssetManagement\AssetDetailRequest;
@@ -10,6 +12,8 @@ use App\Services\AssetManagement\AssetTypeService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel as FacadesExcel;
+
 
 class AssetController extends Controller
 {
@@ -25,6 +29,7 @@ class AssetController extends Controller
 
     public function index(Request $request)
     {
+        // dd($request->all());
         $this->authorize('list_assets');
         try {
             $filterParameters = [
@@ -34,11 +39,15 @@ class AssetController extends Controller
                     'is_working' => $request->is_working ?? null,
                     'is_available' => $request->is_available ?? null,
                     'type' => $request->type ?? null,
+                    'download_excel' => $request->download_excel ?? null
             ];
             $select = ['*'];
             $with = ['type:id,name','assignedTo:id,name'];
             $assetType = $this->assetTypeService->getAllAssetTypes(['id','name']);
             $assetLists = $this->assetService->getAllAssetsPaginated($filterParameters,$select,$with);
+            if ($filterParameters['download_excel']) {
+                return FacadesExcel::download(new AssetListExport(),'Asset-report.xlsx');
+            }
             return view($this->view . 'index', compact('assetLists','assetType','filterParameters'));
         } catch (Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());

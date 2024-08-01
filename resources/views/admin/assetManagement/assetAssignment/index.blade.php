@@ -25,6 +25,12 @@
     .dropdown-item {
         color: #0e0d0d !important;
     }
+
+    .table thead th {
+        font-size: 12px !important;
+        font-weight: 600 !important;
+
+    }
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
 
@@ -33,6 +39,7 @@
 <section class="content">
     @include('admin.section.flash_message')
     @include('admin.assetManagement.assetAssignment.breadCrumb')
+
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
@@ -41,6 +48,7 @@
                         <tr>
                             <th>#</th>
                             <th>Name</th>
+                            <th class="text-center">Type</th>
                             <th class="text-center">Asset</th>
                             <th class="text-center">Assigned Date</th>
                             <th class="text-center">Return Date</th>
@@ -67,6 +75,9 @@
                             <td>{{++$key}}</td>
                             <td>{{ucfirst($value->assign_to)}}</td>
                             <td class="text-center">
+                                {{$value->asset_types}}
+                            </td>
+                            <td class="text-center">
                                 {{$value->asset_name}}
                             </td>
                             <td class="text-center">
@@ -81,17 +92,17 @@
                                 <b>- -</b>
                             </td>
                             @endif
-                            @if($value->damaged != null || $value->damaged == 1)
+                            @if($value->damaged == 1)
                             <td class="text-center">
                                 Yes
                             </td>
-                            @elseif($value->damaged == null)
+                            @elseif($value->damaged == 0)
                             <td class="text-center">
-                                <b>- -</b>
+                                No
                             </td>
                             @else
                             <td class="text-center">
-                                No
+                                <b>- -</b>
                             </td>
                             @endif
                             @if($value->cost_of_damage != null)
@@ -175,7 +186,7 @@
                                                         <!-- <input type="number" class="form-control" id="amountPaid" placeholder="Enter amount paid"> -->
                                                         <select name="amount_paid" class="form-select amount_paid" id="amountPaid" aria-label="Default select example">
                                                             @if($value->paid != null )
-                                                            <option hidden  value="{{$value->paid}}">{{\App\Models\AssetAssignment::BOOLEAN_DATA[$value->paid]}}</option>
+                                                            <option hidden value="{{$value->paid}}">{{\App\Models\AssetAssignment::BOOLEAN_DATA[$value->paid]}}</option>
                                                             <option value="1">Yes</option>
                                                             <option value="0">No</option>
                                                             @else
@@ -194,7 +205,7 @@
                                                 <div class="returnDateField" style="display: none;">
                                                     <div class="form-group">
                                                         <label for="returnDate">Return Date</label>
-                                                        <input name="return_date" type="date" value="{{ $value->return_date ? date('Y-m-d', strtotime($value->return_date)) : null }}"  class="form-control returned_date" id="returnDate">
+                                                        <input name="return_date" type="date" value="{{ $value->return_date ? date('Y-m-d', strtotime($value->return_date)) : null }}" class="form-control returned_date" id="returnDate">
                                                     </div>
                                                 </div>
                                                 <input type="hidden" name="user_id" value="{{$value->user_id}}">
@@ -226,60 +237,9 @@
     </div>
 </section>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const damageSelects = document.getElementsByClassName("damage_select");
-        const damageFields = document.getElementsByClassName("damageFields");
-        const returnDateFields = document.getElementsByClassName("returnDateField");
-
-        Array.from(damageSelects).forEach((damageSelect, index) => {
-            damageSelect.addEventListener("change", function() {
-                console.log("Change event triggered for modal", index);
-                const damageCostInput = damageFields[index].querySelector("#damageCost");
-                const amountPaidSelect = damageFields[index].querySelector("#amountPaid");
-                const damageReasonTextarea = damageFields[index].querySelector("#reason");
-                const returnDateInput = returnDateFields[index].querySelector("#returnDate");
-
-                if (damageSelect.value == "1") {
-                    // Show all fields if 'Yes' is selected
-                    damageFields[index].style.display = "block";
-                    returnDateFields[index].style.display = "block";
-
-                    // Make damage-related fields mandatory
-                    damageCostInput.setAttribute("required", "required");
-                    amountPaidSelect.setAttribute("required", "required");
-                    damageReasonTextarea.setAttribute("required", "required");
-                    returnDateInput.setAttribute("required", "required");
-                } else if (damageSelect.value == "0") {
-                    // Show only the return date if 'No' is selected
-                    damageFields[index].style.display = "none";
-                    returnDateFields[index].style.display = "block";
-
-                    // Remove mandatory attribute from damage-related fields
-                    damageCostInput.removeAttribute("required");
-                    amountPaidSelect.removeAttribute("required");
-                    damageReasonTextarea.removeAttribute("required");
-
-                    // Make only the return date mandatory
-                    returnDateInput.setAttribute("required", "required");
-                } else {
-                    // Hide all fields if no valid option is selected
-                    damageFields[index].style.display = "none";
-                    returnDateFields[index].style.display = "none";
-
-                    // Remove mandatory attribute from all fields
-                    damageCostInput.removeAttribute("required");
-                    amountPaidSelect.removeAttribute("required");
-                    damageReasonTextarea.removeAttribute("required");
-                    returnDateInput.removeAttribute("required");
-                }
-            });
-        });
-    });
-</script>
-
 @endsection
 
 @section('scripts')
+@include('admin.assetManagement.assetAssignment.scripts')
 @include('admin.assetManagement.types.common.scripts')
 @endsection

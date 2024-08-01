@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Web;
 
-use App\Http\Controllers\Controller;
+use Exception;
 use App\Models\Asset;
+use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\AssetAssignment;
-use App\Repositories\AssetAssignmentRepository;
 use App\Repositories\UserRepository;
+use App\Http\Controllers\Controller;
 use App\Services\AssetManagement\AssetService;
 use App\Services\AssetManagement\AssetTypeService;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Exception;
-use Illuminate\Http\Request;
+use App\Repositories\AssetAssignmentRepository;
 
 class AssetAssignmentController extends Controller
 {
@@ -25,12 +25,20 @@ class AssetAssignmentController extends Controller
     ) {
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('list_type');
         try {
+            $filterParameters = [
+                'name' => $request->name ?? null,
+                'purchased_from' => $request->purchased_from ?? null,
+                'purchased_to' => $request->purchased_to ?? null,
+                'is_working' => $request->is_working ?? null,
+                'is_available' => $request->is_available ?? null,
+                'type' => $request->type ?? null,
+        ];
             $select = ['*'];
-            $with = ['assets', 'users'];
+            $with = ['assets', 'users','asset_types'];
             $assetLists = $this->assetAsignmentRepo->getAllAssetAssignments($select, $with);
             return view($this->view . 'index', compact('assetLists'));
         } catch (\Exception $exception) {
@@ -122,7 +130,7 @@ class AssetAssignmentController extends Controller
                 'cost_of_damage' => null,
                 'return_status' => 1
             ]);
-            return $this->index();
+            return $this->index($request);
         } else {
             $result = $q->update([
                 'return_date' => date('Y-m-d', strtotime($request->return_date)),
@@ -133,7 +141,7 @@ class AssetAssignmentController extends Controller
                 'damage_reason' => $damage_reason,
                 'return_status' => $amount_paid == 1 ? 1 : 0,
             ]);
-            return $this->index();
+            return $this->index($request);
         }
     }
 
