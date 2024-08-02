@@ -22,6 +22,13 @@
         border-color: #e82e5f !important;
     }
 
+    .btn-block {
+        height: fit-content;
+    }
+    .filter-btn{
+        margin-top: 8px;
+    }
+
     .dropdown-item {
         color: #0e0d0d !important;
     }
@@ -103,12 +110,13 @@
                 </div>
                 @endif
 
-                <div class="col-lg-12 mb-3">
+                <div class="col-lg-12 mb-3 filter-buttons">
                     <div class="d-flex float-lg-end">
-                        <button type="submit" class="btn btn-block btn-secondary me-2">Filter</button>
-                        <a href="{{route('admin.asset_assignment.index')}}" class="btn btn-block btn-primary">Reset</a>
-                        <button type="button" id="download-csv-report" data-href="{{route('admin.asset_assignment.index' )}}" class="btn btn-block btn-secondary form-control me-md-2 me-0 mb-4">CSV Export
+                        <button type="submit" class="btn btn-block filter-btn btn-secondary me-2">Filter</button>
+                        <button type="button" id="download-csv-report" data-href="{{route('admin.asset_assignment.index' )}}" class="btn btn-block btn-secondary  form-control me-md-2 me-0 mb-4">Export
                         </button>
+                        <a href="{{route('admin.asset_assignment.index')}}" class="btn btn-block btn-primary">Reset</a>
+
                     </div>
                 </div>
             </div>

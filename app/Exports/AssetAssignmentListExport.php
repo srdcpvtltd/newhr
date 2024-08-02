@@ -29,6 +29,7 @@ class AssetAssignmentListExport implements FromCollection, WithHeadings, WithSty
     protected $field_list = [
         'id',
         'user_id',
+        'asset_id',
         'asset_type_id',
         'assign_date',
         'return_date',
@@ -39,8 +40,7 @@ class AssetAssignmentListExport implements FromCollection, WithHeadings, WithSty
 
     public function collection()
     {
-        // dd($this->filtered_parameter);
-        $q = AssetAssignment::select($this->field_list)->with(['users', 'asset_types']);
+        $q = AssetAssignment::select($this->field_list)->with(['users', 'asset_types', 'assets']);
         $filterd_keys = array_keys($this->filtered_parameter);
 
         for ($i = 0; $i < count($filterd_keys); $i++) {
@@ -68,10 +68,12 @@ class AssetAssignmentListExport implements FromCollection, WithHeadings, WithSty
 
         return $q->get()->map(function ($item) {
             $item->name =  $item->users ? $item->users->name : 'N/A';
-            $item->type =  $item->asset_types ? $item->asset_types->name : 'N/A';
+            $item->asset_type =  $item->asset_types ? $item->asset_types->name : 'N/A';
+            $item->asset_name =  $item->assets ? $item->assets->name :  'N/A';
             $item->damaged =  $item->damaged == 1 ? "Yes" : 'N/A';
             $item->return_status = $item->return_status == 1 ? "Yes" : 'N/A';
             $item->returned = $item->returned == 1 ? "Yes" : 'N/A';
+
             $itemArray = $item->toArray();
 
             unset(
@@ -80,17 +82,22 @@ class AssetAssignmentListExport implements FromCollection, WithHeadings, WithSty
                 $itemArray['asset_types'],
                 $itemArray['users']
             );
+            $reorderedItemArray = [
+                'id' => $itemArray['id'],
+                'name' => $itemArray['name'],
+                'asset_type' => $itemArray['asset_type'],
+                'asset_name' => $itemArray['asset_name']
+            ] + $itemArray; // Prepend the reordered keys
 
             if (empty($this->all_headings)) {
 
                 $this->all_headings = array_map(function ($value) {
                     Log::info($value);
                     return is_string($value) ? ucwords(strtolower($value)) : $value;
-                }, array_keys($itemArray));
+                }, array_keys($reorderedItemArray));
             }
-
-
-            return $itemArray;
+            
+            return $reorderedItemArray;
         });
     }
 

@@ -48,7 +48,7 @@ class AssetAssignmentController extends Controller
 
             if ($filterParameters['download_excel']) {
                 unset($filterParameters['download_excel']);
-                return Excel::download(new AssetAssignmentListExport($filterParameters), 'Asset-report.xlsx');
+                return Excel::download(new AssetAssignmentListExport($filterParameters), 'Asset-assignment-report.xlsx');
             }
 
             return view($this->view . 'index', compact('assetLists','assetType','filterParameters'));
