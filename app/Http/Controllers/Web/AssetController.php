@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers\Web;
 
-use App\Exports\AssetListExport;
-use App\Exports\AttendanceDayWiseExport;
-use App\Http\Controllers\Controller;
-use App\Repositories\UserRepository;
-use App\Requests\AssetManagement\AssetDetailRequest;
-use App\Services\AssetManagement\AssetService;
-use App\Services\AssetManagement\AssetTypeService;
 use Exception;
 use Illuminate\Http\Request;
+use App\Exports\AssetListExport;
 use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Facades\Excel as FacadesExcel;
+use App\Http\Controllers\Controller;
+use App\Repositories\UserRepository;
+use App\Services\AssetManagement\AssetService;
+use App\Services\AssetManagement\AssetTypeService;
+use App\Requests\AssetManagement\AssetDetailRequest;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 class AssetController extends Controller
@@ -23,32 +22,31 @@ class AssetController extends Controller
         private AssetService $assetService,
         private AssetTypeService $assetTypeService,
         private UserRepository $userRepo
-    )
-    {
+    ) {
     }
 
     public function index(Request $request)
     {
-        // dd($request->all());
         $this->authorize('list_assets');
         try {
             $filterParameters = [
-                    'name' => $request->name ?? null,
-                    'purchased_from' => $request->purchased_from ?? null,
-                    'purchased_to' => $request->purchased_to ?? null,
-                    'is_working' => $request->is_working ?? null,
-                    'is_available' => $request->is_available ?? null,
-                    'type' => $request->type ?? null,
-                    'download_excel' => $request->download_excel ?? null
+                'name' => $request->name ?? null,
+                'purchased_from' => $request->purchased_from ?? null,
+                'purchased_to' => $request->purchased_to ?? null,
+                'is_working' => $request->is_working ?? null,
+                'is_available' => $request->is_available ?? null,
+                'type' => $request->type ?? null,
+                'download_excel' => $request->download_excel ?? null
             ];
             $select = ['*'];
-            $with = ['type:id,name','assignedTo:id,name'];
-            $assetType = $this->assetTypeService->getAllAssetTypes(['id','name']);
-            $assetLists = $this->assetService->getAllAssetsPaginated($filterParameters,$select,$with);
+            $with = ['type:id,name', 'assignedTo:id,name'];
+            $assetType = $this->assetTypeService->getAllAssetTypes(['id', 'name']);
+            $assetLists = $this->assetService->getAllAssetsPaginated($filterParameters, $select, $with);
             if ($filterParameters['download_excel']) {
-                return FacadesExcel::download(new AssetListExport(),'Asset-report.xlsx');
+                unset($filterParameters['download_excel']);
+                return Excel::download(new AssetListExport($filterParameters), 'Asset-report.xlsx');
             }
-            return view($this->view . 'index', compact('assetLists','assetType','filterParameters'));
+            return view($this->view . 'index', compact('assetLists', 'assetType', 'filterParameters'));
         } catch (Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }
@@ -58,11 +56,11 @@ class AssetController extends Controller
     {
         $this->authorize('create_assets');
         try {
-            $employeeSelect = ['id','name'];
-            $typeSelect = ['id','name'];
+            $employeeSelect = ['id', 'name'];
+            $typeSelect = ['id', 'name'];
             $assetType = $this->assetTypeService->getAllActiveAssetTypes($typeSelect);
             $employees = $this->userRepo->getAllVerifiedEmployeeOfCompany($employeeSelect);
-            return view($this->view . 'create',compact('assetType','employees'));
+            return view($this->view . 'create', compact('assetType', 'employees'));
         } catch (Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }
@@ -85,8 +83,8 @@ class AssetController extends Controller
         $this->authorize('show_asset');
         try {
             $select = ['*'];
-            $with = ['type:id,name','assignedTo:id,name'];
-            $assetDetail = $this->assetService->findAssetById($id,$select,$with,);
+            $with = ['type:id,name', 'assignedTo:id,name'];
+            $assetDetail = $this->assetService->findAssetById($id, $select, $with,);
             return view($this->view . 'show', compact('assetDetail'));
         } catch (Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
@@ -97,12 +95,12 @@ class AssetController extends Controller
     {
         $this->authorize('edit_assets');
         try {
-            $employeeSelect = ['id','name'];
-            $typeSelect = ['id','name'];
+            $employeeSelect = ['id', 'name'];
+            $typeSelect = ['id', 'name'];
             $assetType = $this->assetTypeService->getAllActiveAssetTypes($typeSelect);
             $employees = $this->userRepo->getAllVerifiedEmployeeOfCompany($employeeSelect);
             $assetDetail = $this->assetService->findAssetById($id);
-            return view($this->view . 'edit', compact('assetDetail','assetType','employees'));
+            return view($this->view . 'edit', compact('assetDetail', 'assetType', 'employees'));
         } catch (Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }
@@ -128,7 +126,7 @@ class AssetController extends Controller
         $this->authorize('delete_assets');
         try {
             DB::beginTransaction();
-                $this->assetService->deleteAsset($id);
+            $this->assetService->deleteAsset($id);
             DB::commit();
             return redirect()->back()->with('success', 'Asset Detail Deleted Successfully');
         } catch (Exception $exception) {
@@ -147,6 +145,4 @@ class AssetController extends Controller
             return redirect()->back()->with('danger', $exception->getMessage());
         }
     }
-
-
 }

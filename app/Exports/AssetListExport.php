@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class AssetListExport implements FromCollection, WithHeadings, WithStyles, WithEvents
@@ -16,33 +17,66 @@ class AssetListExport implements FromCollection, WithHeadings, WithStyles, WithE
      * @return \Illuminate\Support\Collection 
      */
     protected $all_headings = [];
+
+    protected $filtered_parameter;
+
+    public function __construct($filtered_parameter)
+    {
+        $this->filtered_parameter = $filtered_parameter;
+    }
+
     protected $field_list = [
         'name',
         'type_id',
-        'image',
         'asset_code',
         'asset_serial_no',
         'is_working',
         'purchased_date',
         'warranty_available',
         'warranty_end_date',
-        'is_available'
+        'is_available',
+        'image',
     ];
+
 
     public function collection()
     {
-        return Asset::select($this->field_list)->with('type')->get()->map(function ($item) {
+        // dd($this->filtered_parameter);
+        $q = Asset::select($this->field_list)->with('type');
+
+        $filterd_keys = array_keys($this->filtered_parameter);
+        // dd(count($filterd_keys));
+
+        for ($i = 0; $i < count($filterd_keys); $i++) {
+
+            if ($this->filtered_parameter['type'] != null) {
+    
+                $q->orWhereHas('type', function ($query) {
+                    return $query->where('name', $this->filtered_parameter['type']);
+                });
+                unset($this->filtered_parameter['type']);
+            }
+
+            if ($this->filtered_parameter[$filterd_keys[$i]] != null) {
+                $q->orWhere($filterd_keys[$i], $this->filtered_parameter[$filterd_keys[$i]]);
+            }
+        }
+        return $q->get()->map(function ($item) {
             $item->asset_type =  $item->type ? $item->type->name : 'N/A';
+            $item->warranty_available =  $item->warranty_available == 1 ? "Yes" : 'N/A';
+            $item->is_available = $item->is_available == 1 ? "Yes" : 'N/A';
             $itemArray = $item->toArray();
-            $itemArray = array_map(function ($value) {
-                return is_string($value) ? ucwords(strtolower($value)) : $value;
-            }, $itemArray);
+
             unset($itemArray['type_id'], $itemArray['type']);
+
             if (empty($this->all_headings)) {
 
-                $this->all_headings = array_keys($itemArray);
+                $this->all_headings = array_map(function ($value) {
+                    Log::info($value);
+                    return is_string($value) ? ucwords(strtolower($value)) : $value;
+                }, array_keys($itemArray));
             }
-            Log::info("jyoti");
+
             return $itemArray;
         });
     }
@@ -72,12 +106,13 @@ class AssetListExport implements FromCollection, WithHeadings, WithStyles, WithE
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
-                
-                // Auto-size columns
-                foreach ($sheet->getColumnDimensions() as $columnDimension) {
-                    $columnDimension->setAutoSize(true);
+
+                // Set auto-size for each column
+                $columns = range('A', $sheet->getHighestColumn());
+                foreach ($columns as $column) {
+                    $sheet->getColumnDimension($column)->setAutoSize(true);
                 }
             },
         ];
