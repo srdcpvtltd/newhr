@@ -1,5 +1,27 @@
 <script>
 
+function getFilterParameters() {
+        let params = {
+            name: $('#user').val(),
+            assign_date : $('#assigned_date').val(),
+            return_date: $('#returned_date').val(),
+            return_status : $('#return_status').val(),
+            damaged: $('#damaged').val(),
+            type : $('#type').val(),
+        }
+        return params;
+    }
+
+    $('#download-csv-report').on('click', function(e) {
+        e.preventDefault();
+        console.log('comming to js ');
+        let route = $(this).data('href');
+        let filtered_params = getFilterParameters();
+        filtered_params.download_excel = true;
+        let queryString = $.param(filtered_params)
+        let url = route + '?' + queryString;
+        window.open(url, '_blank');
+    })
     
     $('#type').change(function() {
         let selectedAssetTypeId = $('#type option:selected').val();

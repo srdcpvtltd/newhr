@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Exports\AssetAssignmentListExport;
 use Exception;
 use App\Models\Asset;
 use Illuminate\Http\Request;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Services\AssetManagement\AssetService;
 use App\Services\AssetManagement\AssetTypeService;
 use App\Repositories\AssetAssignmentRepository;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AssetAssignmentController extends Controller
 {
@@ -27,20 +29,29 @@ class AssetAssignmentController extends Controller
 
     public function index(Request $request)
     {
+        // dd($request->all());
         $this->authorize('list_type');
         try {
             $filterParameters = [
                 'name' => $request->name ?? null,
-                'purchased_from' => $request->purchased_from ?? null,
-                'purchased_to' => $request->purchased_to ?? null,
-                'is_working' => $request->is_working ?? null,
-                'is_available' => $request->is_available ?? null,
+                'assign_date' => $request->purchased_from ?? null,
+                'return_date' => $request->purchased_to ?? null,
+                'damaged' => $request->damaged ?? null,
                 'type' => $request->type ?? null,
-        ];
+                'return_status' =>  $request->return_status ?? null,
+                'download_excel' => $request->download_excel ?? null
+            ];
             $select = ['*'];
-            $with = ['assets', 'users','asset_types'];
-            $assetLists = $this->assetAsignmentRepo->getAllAssetAssignments($select, $with);
-            return view($this->view . 'index', compact('assetLists'));
+            $with = ['assets', 'users', 'asset_types'];
+            $assetType = $this->assetTypeService->getAllAssetTypes(['id', 'name']);
+            $assetLists = $this->assetAsignmentRepo->getAllAssetAssignments($filterParameters,$select, $with);
+
+            if ($filterParameters['download_excel']) {
+                unset($filterParameters['download_excel']);
+                return Excel::download(new AssetAssignmentListExport($filterParameters), 'Asset-report.xlsx');
+            }
+
+            return view($this->view . 'index', compact('assetLists','assetType','filterParameters'));
         } catch (\Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }
@@ -69,7 +80,7 @@ class AssetAssignmentController extends Controller
         });
 
         $amountPaid = 30.00; // Example amount paid
-        $pdf = Pdf::loadView($this->view .'pdf.assignmentAgreement',compact('customers', 'items', 'subtotal', 'amountPaid'));
+        $pdf = Pdf::loadView($this->view . 'pdf.assignmentAgreement', compact('customers', 'items', 'subtotal', 'amountPaid'));
         $pdf->setPaper('A4', 'portrait');
         return $pdf->download('Asset Assignment Agreement.pdf');
     }
@@ -97,7 +108,7 @@ class AssetAssignmentController extends Controller
         });
 
         $amountPaid = 30.00; // Example amount paid
-        $pdf = Pdf::loadView($this->view .'pdf.returnAgreement',compact('customers', 'items', 'subtotal', 'amountPaid'));
+        $pdf = Pdf::loadView($this->view . 'pdf.returnAgreement', compact('customers', 'items', 'subtotal', 'amountPaid'));
         $pdf->setPaper('A4', 'portrait');
         return $pdf->download('Asset Retuned Agreement.pdf');
     }
@@ -163,7 +174,7 @@ class AssetAssignmentController extends Controller
     public function getAllAssetsByAssetTypeId($id)
     {
 
-        $assets =  Asset::where('type_id', $id)->where('is_available',1)->get(['id', 'name']);
+        $assets =  Asset::where('type_id', $id)->where('is_available', 1)->get(['id', 'name']);
         // dd($assets);
         if ($assets) {
             return response()->json([
@@ -182,12 +193,12 @@ class AssetAssignmentController extends Controller
         $this->authorize('create_assets');
         try {
 
-            if($request->asset == null){
+            if ($request->asset == null) {
                 return redirect()->route('admin.asset_assignment.index')->with('danger', "fields Can't be Empty");
             }
             $result = AssetAssignment::create([
                 'asset_type_id' => $request->type_id,
-                'asset_id' => $request->asset, 
+                'asset_id' => $request->asset,
                 'user_id' => $request->assigned_to,
                 'assign_date' => $request->assign_date
             ]);

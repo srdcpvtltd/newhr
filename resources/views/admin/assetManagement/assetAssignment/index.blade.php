@@ -39,7 +39,81 @@
 <section class="content">
     @include('admin.section.flash_message')
     @include('admin.assetManagement.assetAssignment.breadCrumb')
+    <div class="search-box p-4  bg-white rounded mb-3 box-shadow pb-0">
 
+        <form class="forms-sample" action="{{route('admin.asset_assignment.index')}}" method="get">
+
+            <h5 class="mb-3">Assignment Filter</h5>
+
+            <div class="row align-items-center">
+                <div class="col-xxl col-xl-4 col-md-6 mb-4">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" placeholder="User Name" id="user" name="name" value="{{$filterParameters['name']}}" class="form-control">
+                </div>
+
+                <div class="col-xxl col-xl-4  col-md-6 mb-4">
+                    <label for="" class="form-label">Type</label>
+                    <select class="form-select form-select-lg" name="type" id="type">
+                        <option value="" {{!isset($filterParameters['type']) ? 'selected': ''}}> All </option>
+                        @foreach($assetType as $key => $value)
+                        <option value="{{$value->id}}" {{ isset($filterParameters['type']) && $filterParameters['type'] == $value->id ? 'selected': '' }}>
+                            {{ucfirst($value->name)}}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-xxl col-xl-4 col-md-6 mb-4">
+                    <label for="" class="form-label">Damaged</label>
+                    <select class="form-select form-select-lg" name="damaged" id="damaged">
+                        <option value="{{null}}">Select Status</option>
+                        <option value="1">Yes</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
+
+                <div class="col-xxl col-xl-4 col-md-6 mb-4">
+                    <label for="" class="form-label">Return Status</label>
+                    <select class="form-select form-select-lg" name="return_status" id="return_status">
+                        <option value="{{null}}">Select Status</option>
+                        <option value="1">Yes</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
+
+                @if(\App\Helpers\AppHelper::ifDateInBsEnabled())
+                <div class="col-xxl col-xl-4 col-md-6 mb-4">
+                    <label for="" class="form-label">Assigned Date</label>
+                    <input type="text" id="assigned_date" name="assign_date" value="{{$filterParameters['assign_date']}}" placeholder="mm/dd/yyyy" class="form-control purchasedFrom" />
+                </div>
+
+                <div class="col-xxl col-xl-4 col-md-6 mb-4">
+                    <label for="" class="form-label">Return Date</label>
+                    <input type="text" id="returned_date" name="return_date" value="{{$filterParameters['return_date']}}" placeholder="mm/dd/yyyy" class="form-control purchasedTo" />
+                </div>
+                @else
+                <div class="col-xxl col-xl-4 col-md-6 mb-4">
+                    <label for="" class="form-label">Assigned Date</label>
+                    <input type="date" value="{{$filterParameters['assign_date']}}" name="assign_date" class="form-control">
+                </div>
+
+                <div class="col-xxl col-xl-4 col-md-6 mb-4">
+                    <label for="" class="form-label">Return Date</label>
+                    <input type="date" value="{{$filterParameters['return_date']}}" name="return_date" class="form-control">
+                </div>
+                @endif
+
+                <div class="col-lg-12 mb-3">
+                    <div class="d-flex float-lg-end">
+                        <button type="submit" class="btn btn-block btn-secondary me-2">Filter</button>
+                        <a href="{{route('admin.asset_assignment.index')}}" class="btn btn-block btn-primary">Reset</a>
+                        <button type="button" id="download-csv-report" data-href="{{route('admin.asset_assignment.index' )}}" class="btn btn-block btn-secondary form-control me-md-2 me-0 mb-4">CSV Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
