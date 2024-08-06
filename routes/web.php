@@ -34,6 +34,7 @@ use App\Http\Controllers\Web\RoleController;
 use App\Http\Controllers\Web\RouterController;
 use App\Http\Controllers\Web\AdvanceSalaryController;
 use App\Http\Controllers\Web\AssetAssignmentController;
+use App\Http\Controllers\Web\ProcurementController;
 use App\Http\Controllers\Web\RegularizationController;
 use App\Http\Controllers\Web\SalaryComponentController;
 use App\Http\Controllers\Web\SalaryGroupController;
@@ -304,6 +305,10 @@ Route::group([
         Route::get('asset-assignments/get-All-Assets/{assetType_id}', [AssetAssignmentController::class, 'getAllAssetsByAssetTypeId'])->name('assets.getAllAssetsByAssetTypeId');
         Route::post('asset-assignments/asset-return', [AssetAssignmentController::class, 'return'])->name('asset_return');
 
+        // Procuremnets
+        Route::resource('procurement', ProcurementController::class,[
+            'except' => ['destroy']
+        ]);
         /** Salary Component route */
         Route::resource('salary-components', SalaryComponentController::class,[
             'except' => ['destroy','show']

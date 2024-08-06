@@ -30,6 +30,7 @@
                 @include('admin.section.partial.tada')
                 @include('admin.section.partial.shiftManagement')
                 @include('admin.section.partial.assetManagement')
+                @include('admin.section.partial.procurement')
                 @include('admin.section.partial.staticPageContent')
                 @include('admin.section.partial.ticket')
                 @include('admin.section.partial.setting')

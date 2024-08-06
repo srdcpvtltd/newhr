@@ -17,7 +17,6 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->unsignedBigInteger('type_id');
-            $table->unsignedBigInteger('assigned_to');
             $table->string('image');
             $table->string('asset_code')->nullable();
             $table->string('asset_serial_no')->nullable();
@@ -31,7 +30,6 @@ return new class extends Migration
             $table->unsignedBigInteger('updated_by')->nullable();
 
             $table->foreign('type_id')->references('id')->on('asset_types');
-            $table->foreign('assigned_to')->references('id')->on('users');
             $table->foreign('created_by')->references('id')->on('users');
             $table->foreign('updated_by')->references('id')->on('users');
             $table->timestamps();
