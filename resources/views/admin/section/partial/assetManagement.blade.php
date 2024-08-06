@@ -10,6 +10,13 @@
                    ?'' : 'collapse'  }}" id="assets">
             <ul class="nav sub-menu">
 
+            @can('list_assets')
+                    <li class="nav-item">
+                        <a href="{{route('admin.brands.index')}}"
+                           data-href="{{route('admin.brands.index')}}"
+                           class="nav-link {{ request()->routeIs('admin.brands.*') ? 'active' : '' }}">Asset Brands</a>
+                    </li>
+                @endcan
                 @can('list_type')
                     <li class="nav-item">
                         <a

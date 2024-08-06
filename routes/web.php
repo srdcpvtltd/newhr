@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AdminAuthController;
+use App\Http\Controllers\Web\BrandsController;
 use App\Http\Controllers\Web\AppSettingController;
 use App\Http\Controllers\Web\AssetController;
 use App\Http\Controllers\Web\AssetTypeController;
@@ -38,7 +39,6 @@ use App\Http\Controllers\Web\ProcurementController;
 use App\Http\Controllers\Web\RegularizationController;
 use App\Http\Controllers\Web\SalaryComponentController;
 use App\Http\Controllers\Web\SalaryGroupController;
-use App\Http\Controllers\Web\SalaryHeadController;
 use App\Http\Controllers\Web\SalaryHistoryController;
 use App\Http\Controllers\Web\SalaryTDSController;
 use App\Http\Controllers\Web\StaticPageContentController;
@@ -304,6 +304,11 @@ Route::group([
 
         Route::get('asset-assignments/get-All-Assets/{assetType_id}', [AssetAssignmentController::class, 'getAllAssetsByAssetTypeId'])->name('assets.getAllAssetsByAssetTypeId');
         Route::post('asset-assignments/asset-return', [AssetAssignmentController::class, 'return'])->name('asset_return');
+
+        // Procuremnets
+        Route::resource('brands', BrandsController::class,[
+            'except' => ['destroy']
+        ]);
 
         // Procuremnets
         Route::resource('procurement', ProcurementController::class,[
