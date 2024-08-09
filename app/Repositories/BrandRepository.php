@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\DB;
 class BrandRepository
 {
 
-    public function getBrandlist()
+    public function getBrandlist($select=['*'],$with=[])
     {
-        return Brand::all();
+        return Brand::select($select)->withCount($with)->get();
     }
 
     public function storeBrands($data)

@@ -6,12 +6,13 @@ use Exception;
 use Illuminate\Http\Request;
 use App\Exports\AssetListExport;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use App\Repositories\UserRepository;
+use App\Repositories\BrandRepository;
 use App\Services\AssetManagement\AssetService;
 use App\Services\AssetManagement\AssetTypeService;
 use App\Requests\AssetManagement\AssetDetailRequest;
-use Maatwebsite\Excel\Facades\Excel;
 
 
 class AssetController extends Controller
@@ -21,7 +22,8 @@ class AssetController extends Controller
     public function __construct(
         private AssetService $assetService,
         private AssetTypeService $assetTypeService,
-        private UserRepository $userRepo
+        private UserRepository $userRepo,
+        private BrandRepository $brandRepo
     ) {
     }
 
@@ -59,8 +61,9 @@ class AssetController extends Controller
             $employeeSelect = ['id', 'name'];
             $typeSelect = ['id', 'name'];
             $assetType = $this->assetTypeService->getAllActiveAssetTypes($typeSelect);
+            $brands = $this->brandRepo->getBrandlist(['id', 'name']);
             $employees = $this->userRepo->getAllVerifiedEmployeeOfCompany($employeeSelect);
-            return view($this->view . 'create', compact('assetType', 'employees'));
+            return view($this->view . 'create', compact('assetType', 'employees','brands'));
         } catch (Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }
