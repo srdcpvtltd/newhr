@@ -79,5 +79,30 @@ class BrandsController extends Controller
                 ->withInput();
         }
     }
+
+    public function delete($id)
+    {
+        $this->authorize('delete_type');
+        try{
+            DB::beginTransaction();
+                $this->brandrepo->deleteBrands($id);
+            DB::commit();
+            return redirect()->back()->with('success', 'Asset Type Deleted Successfully');
+        }catch(\Exception $exception){
+            DB::rollBack();
+            return redirect()->back()->with('danger',$exception->getMessage());
+        }
+    }
+
+    // public function toggleIsActiveStatus($id)
+    // {
+    //     $this->authorize('edit_type');
+    //     try{
+    //         $this->brandrepo->toggleIsActiveStatus($id);
+    //         return redirect()->back()->with('success', 'Status changed Successfully');
+    //     }catch(\Exception $exception){
+    //         return redirect()->back()->with('danger',$exception->getMessage());
+    //     }
+    // }
     
 }

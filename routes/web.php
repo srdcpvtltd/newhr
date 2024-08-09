@@ -309,6 +309,7 @@ Route::group([
         Route::resource('brands', BrandsController::class,[
             'except' => ['destroy']
         ]);
+        Route::get('brands/delete/{id}', [BrandsController::class, 'delete'])->name('brands.delete');
 
         // Procuremnets
         Route::resource('procurement', ProcurementController::class,[

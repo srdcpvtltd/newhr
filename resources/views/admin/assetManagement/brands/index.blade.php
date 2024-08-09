@@ -60,7 +60,7 @@
                                         @can('delete_type')
                                             <li>
                                                 <a class="delete"
-                                                   data-href="{{route('admin.asset-types.delete',$value->id)}}" title="Delete">
+                                                   data-href="{{route('admin.brands.delete',$value->id)}}" title="Delete">
                                                     <i class="link-icon"  data-feather="delete"></i>
                                                 </a>
                                             </li>
