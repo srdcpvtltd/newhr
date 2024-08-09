@@ -310,6 +310,7 @@ Route::group([
             'except' => ['destroy']
         ]);
         Route::get('brands/delete/{id}', [BrandsController::class, 'delete'])->name('brands.delete');
+        Route::get('brands/toggle-status/{id}', [BrandsController::class, 'toggleIsActiveStatus'])->name('brands.toggle-status');
 
         // Procuremnets
         Route::resource('procurement', ProcurementController::class,[

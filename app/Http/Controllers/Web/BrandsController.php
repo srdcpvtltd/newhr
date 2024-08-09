@@ -94,15 +94,15 @@ class BrandsController extends Controller
         }
     }
 
-    // public function toggleIsActiveStatus($id)
-    // {
-    //     $this->authorize('edit_type');
-    //     try{
-    //         $this->brandrepo->toggleIsActiveStatus($id);
-    //         return redirect()->back()->with('success', 'Status changed Successfully');
-    //     }catch(\Exception $exception){
-    //         return redirect()->back()->with('danger',$exception->getMessage());
-    //     }
-    // }
+    public function toggleIsActiveStatus($id)
+    {
+        $this->authorize('edit_type');
+        try{
+            $this->brandrepo->toggleIsActiveStatus($id);
+            return redirect()->back()->with('success', 'Status changed Successfully');
+        }catch(\Exception $exception){
+            return redirect()->back()->with('danger',$exception->getMessage());
+        }
+    }
     
 }

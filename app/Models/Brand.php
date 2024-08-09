@@ -14,7 +14,7 @@ class Brand extends Model
         'is_active'
     ];
 
-    protected $attributes = [
-        'is_active' => 1
-    ];
+    // protected $attributes = [
+    //     'is_active' => 1
+    // ];
 }

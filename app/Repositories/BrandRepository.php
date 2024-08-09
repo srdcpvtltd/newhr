@@ -50,4 +50,18 @@ class BrandRepository
             throw $e;
         }
     }
+
+    public function toggleIsActiveStatus($id)
+    {
+        try {
+            $clientDetail = self::findBrandById($id);
+            // dd($clientDetail->is_active);
+            return $clientDetail->update([
+                'is_active' => $clientDetail->is_active == 1 ? 0 : 1,
+            ]);
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            throw $exception;
+        }
+    }
 }
