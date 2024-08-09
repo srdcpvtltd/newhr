@@ -6,6 +6,7 @@ use App\Exports\AssetAssignmentListExport;
 use App\Http\Controllers\Controller;
 use App\Models\Asset;
 use App\Repositories\AssetAssignmentRepository;
+use App\Repositories\ProcurementRepository;
 use App\Repositories\UserRepository;
 use App\Services\AssetManagement\AssetService;
 use App\Services\AssetManagement\AssetTypeService;
@@ -21,7 +22,8 @@ class ProcurementController extends Controller
         private AssetTypeService $assetTypeService,
         private AssetService $assetService,
         private UserRepository $userRepo,
-        private AssetAssignmentRepository $assetAsignmentRepo
+        private AssetAssignmentRepository $assetAsignmentRepo,
+        private ProcurementRepository $procurementRepo
     ) {
     }
     public function index(Request $request)
@@ -42,13 +44,13 @@ class ProcurementController extends Controller
             $with = ['assets', 'users', 'asset_types'];
             $assetType = $this->assetTypeService->getAllAssetTypes(['id', 'name']);
             $assetLists = $this->assetAsignmentRepo->getAllAssetAssignments($filterParameters, $select, $with);
-
+            
             if ($filterParameters['download_excel']) {
                 unset($filterParameters['download_excel']);
                 return Excel::download(new AssetAssignmentListExport($filterParameters), 'Asset-assignment-report.xlsx');
             }
 
-            return view($this->view . 'index', compact('assetLists', 'assetType', 'filterParameters'));
+            return view($this->view . 'index', compact('assetLists', 'assetType', 'filterParameters','procurement_number'));
         } catch (\Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }
@@ -63,13 +65,16 @@ class ProcurementController extends Controller
             $assets =  Asset::all(['id', 'name'])->toArray();
             $assetType = $this->assetTypeService->getAllActiveAssetTypes($typeSelect);
             $employees = $this->userRepo->getAllVerifiedEmployeeOfCompany($employeeSelect);
-            return view($this->view . 'create', compact('assets', 'assetType', 'employees'));
+            $procurement_number = $this->procurementRepo->getProcruementNumber();
+
+            return view($this->view . 'create', compact('assets', 'assetType', 'employees','procurement_number'));
         } catch (Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         dd($request->all());
     }
 }

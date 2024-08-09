@@ -5,7 +5,7 @@
 @can('create_type')
 <a href="{{ route('admin.procurement.create')}}">
     <button class="btn btn-primary">
-        <i class="link-icon" data-feather="plus"></i>Assign to User
+        <i class="link-icon" data-feather="plus"></i>Add Request
     </button>
 </a>
 @endcan
