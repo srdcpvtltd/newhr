@@ -3,15 +3,16 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Services\AssetManagement\AssetTypeService;
+use App\Repositories\BrandRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BrandsController extends Controller
 {
     private $view = 'admin.assetManagement.brands.';
 
     public function __construct(
-        private AssetTypeService $assetTypeService
+        private BrandRepository $brandrepo
     ) {
     }
 
@@ -21,10 +22,62 @@ class BrandsController extends Controller
         try {
             $select = ['*'];
             $with = ['assets'];
-            $assetTypeLists = $this->assetTypeService->getAllAssetTypes($select, $with);
-            return view($this->view . 'index', compact('assetTypeLists'));
+            $brandLists = $this->brandrepo->getBrandlist();
+            return view($this->view . 'index', compact('brandLists'));
         } catch (\Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }
     }
+
+    public function create()
+    {
+        $this->authorize('create_type');
+        try{
+            return view($this->view.'create');
+        }catch(\Exception $exception){
+            return redirect()->back()->with('danger', $exception->getMessage());
+        }
+    }
+
+    public function store(Request $request)
+    {
+        $this->authorize('create_type');
+        try{
+
+            $this->brandrepo->storeBrands($request->all());
+
+            return redirect()->route('admin.brands.index')->with('success', 'Asset Type Created Successfully');
+        }catch(\Exception $exception){
+            return redirect()->back()->with('danger', $exception->getMessage());
+        }
+    }
+
+    public function edit($id)
+    {
+        $this->authorize('edit_type');
+        try{
+            $brandDetail = $this->brandrepo->findBrandById($id);
+            return view($this->view.'edit', compact('brandDetail'));
+        }catch(\Exception $exception){
+            return redirect()->back()->with('danger', $exception->getMessage());
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $this->authorize('edit_type');
+        try{
+            $brand_data = [
+                'name' => $request->name
+            ];
+            $this->brandrepo->updateBrandDetails($id,$brand_data);
+            return redirect()->route('admin.brands.index')
+                ->with('success', 'Brand Detail Updated Successfully');
+        }catch(\Exception $exception){
+            DB::rollBack();
+            return redirect()->back()->with('danger', $exception->getMessage())
+                ->withInput();
+        }
+    }
+    
 }

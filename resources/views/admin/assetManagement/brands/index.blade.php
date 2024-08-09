@@ -15,7 +15,7 @@
 
     <section class="content">
         @include('admin.section.flash_message')
-        @include('admin.assetManagement.types.common.breadcrumb')
+        @include('admin.assetManagement.brands.breadcrumb')
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive">
@@ -24,7 +24,6 @@
                         <tr>
                             <th>#</th>
                             <th>Name</th>
-                            <th class="text-center">Asset Item Count</th>
                             <th class="text-center">Status</th>
                             @canany(['edit_type','delete_type'])
                                 <th class="text-center">Action</th>
@@ -33,13 +32,13 @@
                         </thead>
                         <tbody>
                         <tr>
-                        @forelse($assetTypeLists as $key => $value)
+                        @forelse($brandLists as $key => $value)
                             <tr>
                                 <td>{{++$key}}</td>
                                 <td>{{ucfirst($value->name)}}</td>
-                                <td class="text-center">
+                                <!-- <td class="text-center">
                                     <a href="{{route('admin.asset-types.show',$value->id)}}"> {{$value->assets_count}}</a>
-                                </td>
+                                </td> -->
                                 <td class="text-center">
                                     <label class="switch">
                                         <input class="toggleStatus" href="{{route('admin.asset-types.toggle-status',$value->id)}}"
@@ -52,7 +51,7 @@
                                     <ul class="d-flex list-unstyled mb-0 justify-content-center">
                                         @can('edit_type')
                                             <li class="me-2">
-                                                <a href="{{route('admin.asset-types.edit',$value->id)}}" title="Edit Detail">
+                                                <a href="{{route('admin.brands.edit',$value->id)}}" title="Edit Detail">
                                                     <i class="link-icon" data-feather="edit"></i>
                                                 </a>
                                             </li>
