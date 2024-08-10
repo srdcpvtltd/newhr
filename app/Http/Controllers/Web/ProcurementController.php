@@ -13,8 +13,8 @@ use App\Repositories\ProcurementRepository;
 use App\Services\AssetManagement\AssetService;
 use App\Repositories\AssetAssignmentRepository;
 use App\Requests\Procurement\ProcurementRequest;
-use App\Services\AssetManagement\AssetTypeService;
 use App\Services\Procurement\ProcurementService;
+use App\Services\AssetManagement\AssetTypeService;
 
 class ProcurementController extends Controller
 {
@@ -33,13 +33,15 @@ class ProcurementController extends Controller
         $this->authorize('list_type');
         try {
             $filterParameters = [
-                'name' => $request->name ?? null,
-                'assign_date' => $request->purchased_from ?? null,
-                'return_date' => $request->purchased_to ?? null,
-                'damaged' => $request->damaged ?? null,
-                'type' => $request->type ?? null,
-                'return_status' =>  $request->return_status ?? null,
-                'download_excel' => $request->download_excel ?? null
+                'procurement_number' => $request->procurement_number ?? null,
+                'user_id' => $request->user_id ?? null,
+                'email' => $request->email ?? null,
+                'asset_type_id' => $request->asset_type_id ?? null,
+                'quantity' => $request->quantity ?? null,
+                'amount' =>  $request->amount ?? null,
+                'request_date' => $request->request_date ?? null,
+                'delivery_date' => $request->delivery_date ?? null
+
             ];
             $select = ['*'];
             $with = ['assets', 'users', 'asset_types'];
@@ -74,7 +76,7 @@ class ProcurementController extends Controller
             return redirect()->back()->with('danger', $exception->getMessage());
         }
     }
-    
+
     public function store(ProcurementRequest $request)
     {
         try {
