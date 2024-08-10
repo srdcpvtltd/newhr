@@ -47,82 +47,7 @@
 <section class="content">
     @include('admin.section.flash_message')
     @include('admin.procurement.breadCrumb')
-    <!-- <div class="search-box p-4  bg-white rounded mb-3 box-shadow pb-0">
-
-        <form class="forms-sample" action="{{route('admin.asset_assignment.index')}}" method="get">
-
-            <h5 class="mb-3">Assignment Filter</h5>
-
-            <div class="row align-items-center">
-                <div class="col-xxl col-xl-4 col-md-6 mb-4">
-                    <label for="name" class="form-label">Name</label>
-                    <input type="text" placeholder="User Name" id="user" name="name" value="{{$filterParameters['name']}}" class="form-control">
-                </div>
-
-                <div class="col-xxl col-xl-4  col-md-6 mb-4">
-                    <label for="" class="form-label">Type</label>
-                    <select class="form-select form-select-lg" name="type" id="type">
-                        <option value="" {{!isset($filterParameters['type']) ? 'selected': ''}}> All </option>
-                        @foreach($assetType as $key => $value)
-                        <option value="{{$value->id}}" {{ isset($filterParameters['type']) && $filterParameters['type'] == $value->id ? 'selected': '' }}>
-                            {{ucfirst($value->name)}}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-xxl col-xl-4 col-md-6 mb-4">
-                    <label for="" class="form-label">Damaged</label>
-                    <select class="form-select form-select-lg" name="damaged" id="damaged">
-                        <option value="{{null}}">Select Status</option>
-                        <option value="1">Yes</option>
-                        <option value="0">No</option>
-                    </select>
-                </div>
-
-                <div class="col-xxl col-xl-4 col-md-6 mb-4">
-                    <label for="" class="form-label">Return Status</label>
-                    <select class="form-select form-select-lg" name="return_status" id="return_status">
-                        <option value="{{null}}">Select Status</option>
-                        <option value="1">Yes</option>
-                        <option value="0">No</option>
-                    </select>
-                </div>
-
-                @if(\App\Helpers\AppHelper::ifDateInBsEnabled())
-                <div class="col-xxl col-xl-4 col-md-6 mb-4">
-                    <label for="" class="form-label">Assigned Date</label>
-                    <input type="text" id="assigned_date" name="assign_date" value="{{$filterParameters['assign_date']}}" placeholder="mm/dd/yyyy" class="form-control purchasedFrom" />
-                </div>
-
-                <div class="col-xxl col-xl-4 col-md-6 mb-4">
-                    <label for="" class="form-label">Return Date</label>
-                    <input type="text" id="returned_date" name="return_date" value="{{$filterParameters['return_date']}}" placeholder="mm/dd/yyyy" class="form-control purchasedTo" />
-                </div>
-                @else
-                <div class="col-xxl col-xl-4 col-md-6 mb-4">
-                    <label for="" class="form-label">Assigned Date</label>
-                    <input type="date" value="{{$filterParameters['assign_date']}}" name="assign_date" class="form-control">
-                </div>
-
-                <div class="col-xxl col-xl-4 col-md-6 mb-4">
-                    <label for="" class="form-label">Return Date</label>
-                    <input type="date" value="{{$filterParameters['return_date']}}" name="return_date" class="form-control">
-                </div>
-                @endif
-
-                <div class="col-lg-12 mb-3 filter-buttons">
-                    <div class="d-flex float-lg-end">
-                        <button type="submit" class="btn btn-block filter-btn btn-secondary me-2">Filter</button>
-                        <button type="button" id="download-csv-report" data-href="{{route('admin.asset_assignment.index' )}}" class="btn btn-block btn-secondary  form-control me-md-2 me-0 mb-4">Export
-                        </button>
-                        <a href="{{route('admin.asset_assignment.index')}}" class="btn btn-block btn-primary">Reset</a>
-
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div> -->
+    
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
@@ -130,15 +55,15 @@
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th class="text-center">Request Number</th>
                             <th>Name</th>
-                            <th class="text-center">Type</th>
-                            <th class="text-center">Asset</th>
-                            <th class="text-center">Assigned Date</th>
-                            <th class="text-center">Return Date</th>
-                            <th class="text-center">Damaged</th>
-                            <th class="text-center">Damage Cost</th>
+                            <th class="text-center">Email</th>
+                            <th class="text-center">Types</th>
+                            <th class="text-center">Brands</th>
+                            <th class="text-center">Request Date</th>
+                            <!-- <th class="text-center">Damage Cost</th>
                             <th class="text-center">Recover</th>
-                            <th class="text-center">Returned Status</th>
+                            <th class="text-center">Returned Status</th> -->
                             @canany(['edit_type','delete_type'])
                             <th class="text-center">Action</th>
                             @endcanany
@@ -153,20 +78,26 @@
                         ]
                         ?>
                         <tr>
-                            @forelse($assetLists as $key => $value)
+                            @forelse($requests as $key => $value)
                         <tr>
                             <td>{{++$key}}</td>
-                            <td>{{ucfirst($value->assign_to)}}</td>
+                            <td class="text-center">
+                                {{uc($value->procurement_number)}}
+                            </td>
+                            <td>{{ucfirst($value->name)}}</td>
+                            <td class="text-center">
+                                {{$value->email}}
+                            </td>
                             <td class="text-center">
                                 {{$value->asset_types}}
                             </td>
                             <td class="text-center">
-                                {{$value->asset_name}}
+                                {{$value->brand}}
                             </td>
                             <td class="text-center">
-                                {{$value->assign_date}}
+                                {{$value->request_date}}
                             </td>
-                            @if($value->return_date != null)
+                            <!-- @if($value->return_date != null)
                             <td class="text-center">
                                 {{$value->return_date}}
                             </td>
@@ -187,8 +118,8 @@
                             <td class="text-center">
                                 <b>- -</b>
                             </td>
-                            @endif
-                            @if($value->cost_of_damage != null)
+                            @endif -->
+                            <!-- @if($value->cost_of_damage != null)
                             <td class="text-center">
                                 ₹{{$value->cost_of_damage}}
                             </td>
@@ -219,7 +150,7 @@
                             <td class="text-center">
                                 <h6 style="border-radius: 5px; padding: 4px; opacity: 0.6;font-family: serif;" class="btn-{{$changeColor[$value->return_status]}}">Completed</h6>
                             </td>
-                            @endif
+                            @endif -->
                             <td class="text-center">
                                 <div class="dropdown">
                                     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #000;background-color: #fff; border-color: #fff;">

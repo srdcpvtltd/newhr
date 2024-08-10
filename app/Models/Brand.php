@@ -17,4 +17,8 @@ class Brand extends Model
     // protected $attributes = [
     //     'is_active' => 1
     // ];
+
+    public function procurements(){
+        return $this->hasMany(Procurement::class);
+    }
 }

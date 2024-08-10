@@ -40,13 +40,17 @@ class ProcurementController extends Controller
                 'quantity' => $request->quantity ?? null,
                 'amount' =>  $request->amount ?? null,
                 'request_date' => $request->request_date ?? null,
-                'delivery_date' => $request->delivery_date ?? null
+                'delivery_date' => $request->delivery_date ?? null,
+                'brand_id' => $request->asset_type_id ?? null,
+                'download_excel' => $request->download_excel ?? null
 
             ];
             $select = ['*'];
-            $with = ['assets', 'users', 'asset_types'];
+            $with = ['users', 'asset_types','brands'];
             $assetType = $this->assetTypeService->getAllAssetTypes(['id', 'name']);
-            $assetLists = $this->assetAsignmentRepo->getAllAssetAssignments($filterParameters, $select, $with);
+            // $assetLists = $this->assetAsignmentRepo->getAllAssetAssignments($filterParameters, $select, $with);
+            $requests = $this->procurementRepo->getAllRequests($filterParameters, $select, $with);
+
 
             if ($filterParameters['download_excel']) {
                 unset($filterParameters['download_excel']);
@@ -54,7 +58,7 @@ class ProcurementController extends Controller
             }
             // dd($request->all());
 
-            return view($this->view . 'index', compact('assetLists', 'assetType', 'filterParameters'));
+            return view($this->view . 'index', compact('requests', 'assetType', 'filterParameters'));
         } catch (\Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }

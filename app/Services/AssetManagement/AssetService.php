@@ -11,28 +11,28 @@ class AssetService
 {
     public function __construct(
         private AssetRepository $assetRepo
-    ){}
+    ) {}
 
-    public function getAllAssetsPaginated($filterParameters,$select= ['*'],$with=[])
+    public function getAllAssetsPaginated($filterParameters, $select = ['*'], $with = [])
     {
-        if(AppHelper::ifDateInBsEnabled()){
+        if (AppHelper::ifDateInBsEnabled()) {
             $filterParameters['purchased_from'] = isset($filterParameters['purchased_from']) ?
-                AppHelper::dateInYmdFormatNepToEng($filterParameters['purchased_from']): null;
+                AppHelper::dateInYmdFormatNepToEng($filterParameters['purchased_from']) : null;
             $filterParameters['purchased_to'] = isset($filterParameters['purchased_to']) ?
-                AppHelper::dateInYmdFormatNepToEng($filterParameters['purchased_to']): null;
+                AppHelper::dateInYmdFormatNepToEng($filterParameters['purchased_to']) : null;
         }
-        return $this->assetRepo->getAllAssetsPaginated($filterParameters,$select,$with);
+        return $this->assetRepo->getAllAssetsPaginated($filterParameters, $select, $with);
     }
 
-    public function findAssetById($id,$select=['*'],$with=[])
+    public function findAssetById($id, $select = ['*'], $with = [])
     {
-        try{
-            $assetDetail =  $this->assetRepo->findAssetById($id,$select,$with);
-            if(!$assetDetail){
-                throw new \Exception('Asset Type Not Found',400);
+        try {
+            $assetDetail =  $this->assetRepo->findAssetById($id, $select, $with);
+            if (!$assetDetail) {
+                throw new \Exception('Asset Type Not Found', 400);
             }
             return $assetDetail;
-        }catch(Exception $exception){
+        } catch (Exception $exception) {
             throw $exception;
         }
     }
@@ -69,7 +69,7 @@ class AssetService
         try {
             $assetDetail = $this->findAssetById($id);
             DB::beginTransaction();
-                $status =  $this->assetRepo->delete($assetDetail);
+            $status =  $this->assetRepo->delete($assetDetail);
             DB::commit();
             return $status;
         } catch (Exception $exception) {
@@ -91,6 +91,4 @@ class AssetService
             throw $exception;
         }
     }
-
-
 }

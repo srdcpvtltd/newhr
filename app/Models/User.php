@@ -203,4 +203,7 @@ class User extends Authenticatable
         return $this->hasMany(AssetAssignment::class);
     }
 
+    public function procurements(){
+        return $this->hasMany(Procurement::class);
+    }
 }
