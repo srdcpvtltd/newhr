@@ -47,7 +47,7 @@
 <section class="content">
     @include('admin.section.flash_message')
     @include('admin.procurement.breadCrumb')
-    <div class="search-box p-4  bg-white rounded mb-3 box-shadow pb-0">
+    <!-- <div class="search-box p-4  bg-white rounded mb-3 box-shadow pb-0">
 
         <form class="forms-sample" action="{{route('admin.asset_assignment.index')}}" method="get">
 
@@ -122,7 +122,7 @@
                 </div>
             </div>
         </form>
-    </div>
+    </div> -->
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">

@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers\Web;
 
-use App\Exports\AssetAssignmentListExport;
-use App\Http\Controllers\Controller;
-use App\Models\Asset;
-use App\Repositories\AssetAssignmentRepository;
-use App\Repositories\ProcurementRepository;
-use App\Repositories\UserRepository;
-use App\Services\AssetManagement\AssetService;
-use App\Services\AssetManagement\AssetTypeService;
 use Exception;
+use App\Models\Asset;
 use Illuminate\Http\Request;
+use App\Repositories\UserRepository;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Controllers\Controller;
+use App\Exports\AssetAssignmentListExport;
+use App\Repositories\ProcurementRepository;
+use App\Services\AssetManagement\AssetService;
+use App\Repositories\AssetAssignmentRepository;
+use App\Requests\Procurement\ProcurementRequest;
+use App\Services\AssetManagement\AssetTypeService;
+use App\Services\Procurement\ProcurementService;
 
 class ProcurementController extends Controller
 {
@@ -23,12 +25,11 @@ class ProcurementController extends Controller
         private AssetService $assetService,
         private UserRepository $userRepo,
         private AssetAssignmentRepository $assetAsignmentRepo,
-        private ProcurementRepository $procurementRepo
-    ) {
-    }
+        private ProcurementRepository $procurementRepo,
+        private ProcurementService $procurementService
+    ) {}
     public function index(Request $request)
     {
-        // dd($request->all());
         $this->authorize('list_type');
         try {
             $filterParameters = [
@@ -44,13 +45,14 @@ class ProcurementController extends Controller
             $with = ['assets', 'users', 'asset_types'];
             $assetType = $this->assetTypeService->getAllAssetTypes(['id', 'name']);
             $assetLists = $this->assetAsignmentRepo->getAllAssetAssignments($filterParameters, $select, $with);
-            
+
             if ($filterParameters['download_excel']) {
                 unset($filterParameters['download_excel']);
                 return Excel::download(new AssetAssignmentListExport($filterParameters), 'Asset-assignment-report.xlsx');
             }
+            // dd($request->all());
 
-            return view($this->view . 'index', compact('assetLists', 'assetType', 'filterParameters','procurement_number'));
+            return view($this->view . 'index', compact('assetLists', 'assetType', 'filterParameters'));
         } catch (\Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }
@@ -67,14 +69,20 @@ class ProcurementController extends Controller
             $employees = $this->userRepo->getAllVerifiedEmployeeOfCompany($employeeSelect);
             $procurement_number = $this->procurementRepo->getProcruementNumber();
 
-            return view($this->view . 'create', compact('assets', 'assetType', 'employees','procurement_number'));
+            return view($this->view . 'create', compact('assets', 'assetType', 'employees', 'procurement_number'));
         } catch (Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }
     }
-
-    public function store(Request $request)
+    
+    public function store(ProcurementRequest $request)
     {
-        dd($request->all());
+        try {
+            $validated_data =  $request->validated();
+            $this->procurementService->storeProcurement($validated_data);
+            return redirect()->route($this->view . 'index')->with('success', 'Request Added Successfully');
+        } catch (\Exception $e) {
+            return  redirect()->back()->with('danger', $e->getMessage());
+        }
     }
 }

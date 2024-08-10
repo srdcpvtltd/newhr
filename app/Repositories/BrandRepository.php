@@ -17,12 +17,13 @@ class BrandRepository
     {
         $brand = new Brand;
         $brand->name = $data['name'];
+        $brand->is_active = 1;
         $brand->save();
     }
 
     public function findBrandById($id)
     {
-        $brand_details = Brand::find($id)->first();
+        $brand_details = Brand::where('id',$id)->first();
 
         return $brand_details;
     }

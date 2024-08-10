@@ -18,4 +18,8 @@ class ProcurementRepository
             return $company_name . date('Y') . 1;
         }
     }
+
+    public function store($data) {
+        return Procurement::create($data)->fresh();
+    }
 }

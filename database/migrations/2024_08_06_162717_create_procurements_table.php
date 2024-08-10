@@ -24,6 +24,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('asset_type_id');
             $table->unsignedBigInteger('brand_id');
+            $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('asset_type_id')->references('id')->on('asset_types');

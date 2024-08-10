@@ -1,13 +1,13 @@
 <div class="row">
 
     <div class="col-lg-4 col-md-6 mb-4">
-        <label for="pnumber" class="form-label">Request Number <span style="color: red">*</span></label>
-        <input type="text" disabled class="form-control" value="{{ $procurement_number }}" id="procurement_number" name="pnumber" required autocomplete="off" placeholder="Number">
+        <label for="procurement_number" class="form-label">Request Number <span style="color: red">*</span></label>
+        <input type="text" readonly class="form-control" value="{{ $procurement_number }}" id="pnumber" name="procurement_number" required autocomplete="off" placeholder="Number">
     </div>
 
     <div class="col-lg-4 col-md-6 mb-4">
-        <label for="billing_name" class="form-label">Name</label>
-        <select class="form-select" id="user_id" name="billing_name">
+        <label for="user_id" class="form-label">Name</label>
+        <select class="form-select" id="user_id" name="user_id">
             <option value="" {{isset($assetDetail) || old('assigned_to') ? '': 'selected'}}>Select Employee</option>
             @foreach($employees as $key => $value)
             <option value="{{$value->id}}" {{ isset($assetDetail) && ($assetDetail->assigned_to ) == $value->id || old('assigned_to') == $value->id ? 'selected': old('assigned_to') }}>
@@ -23,8 +23,8 @@
     </div>
 
     <div class="col-lg-4 col-md-6 mb-4">
-        <label for="type_id" class="form-label">Type <span style="color: red">*</span></label>
-        <select class="form-select" id="type" name="type_id" required>
+        <label for="asset_type_id" class="form-label">Type <span style="color: red">*</span></label>
+        <select class="form-select" id="type" name="asset_type_id" required>
             <option value="" {{isset($assetDetail) ? '': 'selected'}} disabled>Select Type</option>
             @foreach($assetType as $key => $value)
             <option value="{{$value->id}}" {{ isset($assetDetail) && ($assetDetail->type_id ) == $value->id || old('type_id') == $value->id ? 'selected': '' }}>
