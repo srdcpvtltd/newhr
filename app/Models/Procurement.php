@@ -19,6 +19,7 @@ class Procurement extends Model
         'user_id',
         'asset_type_id',
         'brand_id',
+        'status'
     ];
 
     public function brands(){

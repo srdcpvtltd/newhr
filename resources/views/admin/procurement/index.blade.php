@@ -47,7 +47,7 @@
 <section class="content">
     @include('admin.section.flash_message')
     @include('admin.procurement.breadCrumb')
-    
+
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
@@ -61,6 +61,7 @@
                             <th class="text-center">Types</th>
                             <th class="text-center">Brands</th>
                             <th class="text-center">Request Date</th>
+                            <th class="text-center">Status</th>
                             <!-- <th class="text-center">Damage Cost</th>
                             <th class="text-center">Recover</th>
                             <th class="text-center">Returned Status</th> -->
@@ -82,7 +83,7 @@
                         <tr>
                             <td>{{++$key}}</td>
                             <td class="text-center">
-                                {{uc($value->procurement_number)}}
+                                {{$value->procurement_number}}
                             </td>
                             <td>{{ucfirst($value->name)}}</td>
                             <td class="text-center">
@@ -96,6 +97,9 @@
                             </td>
                             <td class="text-center">
                                 {{$value->request_date}}
+                            </td>
+                            <td class="text-center">
+                                {{$value->status == 0 ? "Pending" : "Approved"}}
                             </td>
                             <!-- @if($value->return_date != null)
                             <td class="text-center">
@@ -168,73 +172,7 @@
                                 </div>
                             </td>
                             <!-- Modal -->
-                            <div class="modal fade" id="exampleModalCenter{{ $value->id }}" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered" role="document" style="top: auto;">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLongTitle">Asset Return</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <form action="{{route('admin.asset_return')}}" method="POST">
-                                                @csrf
-                                                <div class="form-group">
-                                                    <label for="damage">Damage</label>
-                                                    <select name="damage" class="form-select damage_select " id="damageSelect" aria-label="Default select example">
-                                                        <option selected>Open this select menu</option>
-                                                        <option value="1">Yes</option>
-                                                        <option value="0">No</option>
-                                                    </select>
-                                                </div>
-
-                                                <!-- Fields to be shown when "Yes" is selected -->
-                                                <div class="damageFields" style="display: none;">
-                                                    <div class="form-group">
-                                                        <label for="cost_of_damage">Damage Cost</label>
-                                                        <input name="cost_of_damage" value="{{$value->cost_of_damage}}" type="number" class="form-control damage_cost" id="damageCost" placeholder="Enter damage cost">
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label for="amountPaid">Amount Paid</label>
-                                                        <!-- <input type="number" class="form-control" id="amountPaid" placeholder="Enter amount paid"> -->
-                                                        <select name="amount_paid" class="form-select amount_paid" id="amountPaid" aria-label="Default select example">
-                                                            @if($value->paid != null )
-                                                            <option hidden value="{{$value->paid}}">{{\App\Models\AssetAssignment::BOOLEAN_DATA[$value->paid]}}</option>
-                                                            <option value="1">Yes</option>
-                                                            <option value="0">No</option>
-                                                            @else
-                                                            <option selected value="{{null}}">Open this select menu</option>
-                                                            <option value="1">Yes</option>
-                                                            <option value="0">No</option>
-                                                            @endif
-                                                        </select>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label for="reason">Reason</label>
-                                                        <textarea name="damage_reason" class="form-control damage_reason" id="reason" rows="3" placeholder="Enter reason"></textarea>
-                                                    </div>
-                                                </div>
-                                                <!-- Field to be shown for both options -->
-                                                <div class="returnDateField" style="display: none;">
-                                                    <div class="form-group">
-                                                        <label for="returnDate">Return Date</label>
-                                                        <input name="return_date" type="date" value="{{ $value->return_date ? date('Y-m-d', strtotime($value->return_date)) : null }}" class="form-control returned_date" id="returnDate">
-                                                    </div>
-                                                </div>
-                                                <input type="hidden" name="user_id" value="{{$value->user_id}}">
-                                                <input type="hidden" name="asset_id" value="{{$value->asset_id}}">
-                                                <input type="hidden" name="asset_assignment_id" value="{{$value->id}}">
-
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                    <button type="submit" class="btn btn-primary">Return</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                               
                             @empty
                         <tr>
                             <td colspan="100%">
