@@ -316,6 +316,8 @@ Route::group([
         Route::resource('procurement', ProcurementController::class,[
             'except' => ['destroy']
         ]);
+        Route::get('procurement/delete/{id}', [ProcurementController::class, 'delete'])->name('procurement.delete');
+
         /** Salary Component route */
         Route::resource('salary-components', SalaryComponentController::class,[
             'except' => ['destroy','show']

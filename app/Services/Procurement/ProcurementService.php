@@ -52,4 +52,18 @@ class ProcurementService
             throw $e;
         }
     }
+
+    public function deleteProcurementRequest($id)
+    {
+        try {
+            $procuremetDetail = $this->findProcurementById($id);
+            DB::beginTransaction();
+            $status =  $this->procurementRepo->delete($procuremetDetail);
+            DB::commit();
+            return $status;
+        } catch (Exception $exception) {
+            DB::rollBack();
+            throw $exception;
+        }
+    }
 }

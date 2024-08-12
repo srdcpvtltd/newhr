@@ -119,10 +119,7 @@
 
                                     @can('delete_assets')
                                     <li>
-                                        <a class="delete"
-                                            data-title="{{$value->name}} Asset Detail"
-                                            data-href="{{route('admin.assets.delete',$value->id)}}"
-                                            title="Delete">
+                                        <a href="{{route('admin.procurement.delete',$value->id)}}" title="Delete">
                                             <i class="link-icon" data-feather="delete"></i>
                                         </a>
                                     </li>

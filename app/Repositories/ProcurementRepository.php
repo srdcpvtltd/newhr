@@ -69,8 +69,13 @@ class ProcurementRepository
             ->first();
     }
 
-    public function update($procurement_detail,$validatedData)
+    public function update($procurement_detail, $validatedData)
     {
         return $procurement_detail->update($validatedData);
+    }
+
+    public function delete($procuremetDetail)
+    {
+        return $procuremetDetail->delete();
     }
 }

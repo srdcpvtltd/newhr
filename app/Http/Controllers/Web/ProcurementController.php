@@ -47,7 +47,7 @@ class ProcurementController extends Controller
 
             ];
             $select = ['*'];
-            $with = ['users', 'asset_types','brands'];
+            $with = ['users', 'asset_types', 'brands'];
             $assetType = $this->assetTypeService->getAllAssetTypes(['id', 'name']);
             // $assetLists = $this->assetAsignmentRepo->getAllAssetAssignments($filterParameters, $select, $with);
             $requests = $this->procurementRepo->getAllRequests($filterParameters, $select, $with);
@@ -120,6 +120,19 @@ class ProcurementController extends Controller
             DB::rollBack();
             return redirect()->back()->with('danger', $exception->getMessage())
                 ->withInput();
+        }
+    }
+
+    public function delete($id)
+    {
+        try {
+            DB::beginTransaction();
+            $this->procurementService->deleteProcurementRequest($id);
+            DB::commit();
+            return redirect()->back()->with('success', 'Request Deleted Successfully');
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return redirect()->back()->with('danger', $exception->getMessage());
         }
     }
 }
