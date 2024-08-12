@@ -47,10 +47,10 @@ class ProcurementRepository
 
     public function getProcruementNumber()
     {
-        $p_id = Procurement::latest()->first()->id;
+        $p_id = Procurement::latest()->first();
         $company_name = str_replace(' ', '', Company::first()->name);
         if ($p_id) {
-            return $company_name . date('Y') . $p_id + 1;
+            return $company_name . date('Y') . $p_id->id + 1;
         } else {
             return $company_name . date('Y') . 1;
         }

@@ -12,6 +12,7 @@ use App\Exports\AssetAssignmentListExport;
 use App\Repositories\ProcurementRepository;
 use App\Services\AssetManagement\AssetService;
 use App\Repositories\AssetAssignmentRepository;
+use App\Repositories\BrandRepository;
 use App\Requests\Procurement\ProcurementRequest;
 use App\Services\Procurement\ProcurementService;
 use App\Services\AssetManagement\AssetTypeService;
@@ -27,7 +28,9 @@ class ProcurementController extends Controller
         private UserRepository $userRepo,
         private AssetAssignmentRepository $assetAsignmentRepo,
         private ProcurementRepository $procurementRepo,
-        private ProcurementService $procurementService
+        private ProcurementService $procurementService,
+        private BrandRepository $brandRepo
+
     ) {}
     public function index(Request $request)
     {
@@ -49,7 +52,7 @@ class ProcurementController extends Controller
             $select = ['*'];
             $with = ['users', 'asset_types', 'brands'];
             $assetType = $this->assetTypeService->getAllAssetTypes(['id', 'name']);
-            // $assetLists = $this->assetAsignmentRepo->getAllAssetAssignments($filterParameters, $select, $with);
+            // $brands = $this->brandRepo->getBrandlist(['id', 'name']);
             $requests = $this->procurementRepo->getAllRequests($filterParameters, $select, $with);
 
 
@@ -65,7 +68,6 @@ class ProcurementController extends Controller
         }
     }
 
-
     public function create()
     {
         try {
@@ -75,9 +77,10 @@ class ProcurementController extends Controller
             $assets =  Asset::all(['id', 'name'])->toArray();
             $assetType = $this->assetTypeService->getAllActiveAssetTypes($typeSelect);
             $employees = $this->userRepo->getAllVerifiedEmployeeOfCompany($employeeSelect);
+            $brands = $this->brandRepo->getBrandlist(['id', 'name']);
             $procurement_number = $this->procurementRepo->getProcruementNumber();
 
-            return view($this->view . 'create', compact('assets', 'assetType', 'employees', 'procurement_number'));
+            return view($this->view . 'create', compact('brands','assets', 'assetType', 'employees', 'procurement_number'));
         } catch (Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }

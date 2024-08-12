@@ -35,6 +35,18 @@
     </div>
 
     <div class="col-lg-4 col-md-6 mb-4">
+        <label for="brand_id" class="form-label">Brand <span style="color: red">*</span></label>
+        <select class="form-select" id="brand" name="brand_id" required>
+            <option value="" {{isset($procurementDetail) ? '': 'selected'}} disabled>Select Type</option>
+            @foreach($brands as $key => $value)
+            <option value="{{$value->id}}" {{ isset($procurementDetail) && ($procurementDetail->brand_id ) == $value->id || old('brand_id') == $value->id ? 'selected': '' }}>
+                {{ucfirst($value->name)}}
+            </option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="col-lg-4 col-md-6 mb-4">
         <label for="quantity" class="form-label">Quantity<span style="color: red">*</span></label>
         <input type="number" value="{{isset($procurementDetail) ? $procurementDetail->quantity : null}}" min="1" class="form-control" id="procurement_quantity" name="quantity" required autocomplete="off" placeholder="Enter Amount">
     </div>

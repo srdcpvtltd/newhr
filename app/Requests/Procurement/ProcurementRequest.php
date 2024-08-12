@@ -27,6 +27,7 @@ class ProcurementRequest extends FormRequest
         $rules =  [
             'procurement_number' => 'required',
             'user_id' => 'required',
+            'brand_id' => 'required',
             'email' => 'required',
             'asset_type_id' => [
                 'required',
