@@ -62,9 +62,6 @@
                             <th class="text-center">Brands</th>
                             <th class="text-center">Request Date</th>
                             <th class="text-center">Status</th>
-                            <!-- <th class="text-center">Damage Cost</th>
-                            <th class="text-center">Recover</th>
-                            <th class="text-center">Returned Status</th> -->
                             @canany(['edit_type','delete_type'])
                             <th class="text-center">Action</th>
                             @endcanany
@@ -73,9 +70,9 @@
                     <tbody>
                         <?php
                         $changeColor = [
-                            0 => 'danger',
+                            0 => 'warning',
                             1 => 'success',
-                            null => 'warning'
+                            // null => 'danger'
                         ]
                         ?>
                         <tr>
@@ -99,80 +96,41 @@
                                 {{$value->request_date}}
                             </td>
                             <td class="text-center">
-                                {{$value->status == 0 ? "Pending" : "Approved"}}
+                                <h6 style="border-radius: 5px; padding: 4px; opacity: 0.6;font-family: serif;" class="btn-{{$changeColor[$value->status]}}">{{$value->status == 0 ? "Pending" : "Approved"}}</h6>
                             </td>
-                            <!-- @if($value->return_date != null)
-                            <td class="text-center">
-                                {{$value->return_date}}
-                            </td>
-                            @else
-                            <td class="text-center">
-                                <b>- -</b>
-                            </td>
-                            @endif
-                            @if($value->damaged == 1)
-                            <td class="text-center">
-                                Yes
-                            </td>
-                            @elseif($value->damaged == 0)
-                            <td class="text-center">
-                                No
-                            </td>
-                            @else
-                            <td class="text-center">
-                                <b>- -</b>
-                            </td>
-                            @endif -->
-                            <!-- @if($value->cost_of_damage != null)
-                            <td class="text-center">
-                                ₹{{$value->cost_of_damage}}
-                            </td>
-                            @else
-                            <td class="text-center">
-                                <b>- -</b>
-                            </td>
-                            @endif
-                            @if($value->paid == null)
-                            <td class="text-center">
-                                <b>- -</b>
-                            </td>
-                            @elseif($value->paid == 0)
-                            <td class="text-center">
-                                <h6 style="border-radius: 5px; padding: 4px; opacity: 0.6;font-family: serif;" class="btn-{{$changeColor[$value->paid]}}">Unpaid</h6>
-                            </td>
-                            @else
-                            <td class="text-center">
-                                <h6 style="border-radius: 5px; padding: 4px; opacity: 0.6;font-family: serif;" class="btn-{{$changeColor[$value->paid]}}">Paid</h6>
-                            </td>
-                            @endif
 
-                            @if($value->return_status == null || $value->return_status == 0)
                             <td class="text-center">
-                                <h6 style="border-radius: 5px; padding: 4px; opacity: 0.6;font-family: serif;" class="btn-{{$changeColor[null]}}">Pending</h6>
-                            </td>
-                            @else
-                            <td class="text-center">
-                                <h6 style="border-radius: 5px; padding: 4px; opacity: 0.6;font-family: serif;" class="btn-{{$changeColor[$value->return_status]}}">Completed</h6>
-                            </td>
-                            @endif -->
-                            <td class="text-center">
-                                <div class="dropdown">
-                                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #000;background-color: #fff; border-color: #fff;">
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-dark">
-                                        @if($value->return_status != 1)
-                                        <li><a class="dropdown-item active" data-toggle="modal" data-target="#exampleModalCenter{{ $value->id }}" href="#">Return Asset</a></li>
-                                        <li><a class="dropdown-item" href="{{route('admin.download.pdf')}}">Asset Assignment Agreement</a></li>
-                                        <li><a class="dropdown-item" href="{{route('admin.download.return.pdf')}}">Asset Returned Agreement</a></li>
-                                        @else
-                                        <li><a class="dropdown-item active" href="{{route('admin.download.pdf')}}">Asset Assignment Agreement</a></li>
-                                        <li><a class="dropdown-item" href="{{route('admin.download.return.pdf')}}">Asset Returned Agreement</a></li>
-                                        @endif
-                                    </ul>
-                                </div>
+                                <ul class="d-flex list-unstyled mb-0 justify-content-center">
+                                    @can('edit_assets')
+                                    <li class="me-2">
+                                        <a href="{{route('admin.procurement.edit',$value->id)}}" title="Edit">
+                                            <i class="link-icon" data-feather="edit"></i>
+                                        </a>
+                                    </li>
+                                    @endcan
+
+                                    @can('show_asset')
+                                    <li class="me-2">
+                                        <a href="{{route('admin.assets.show',$value->id)}}" title="Show Detail">
+                                            <i class="link-icon" data-feather="eye"></i>
+                                        </a>
+                                    </li>
+                                    @endcan
+
+                                    @can('delete_assets')
+                                    <li>
+                                        <a class="delete"
+                                            data-title="{{$value->name}} Asset Detail"
+                                            data-href="{{route('admin.assets.delete',$value->id)}}"
+                                            title="Delete">
+                                            <i class="link-icon" data-feather="delete"></i>
+                                        </a>
+                                    </li>
+                                    @endcan
+                                </ul>
                             </td>
                             <!-- Modal -->
-                               
+
                             @empty
                         <tr>
                             <td colspan="100%">

@@ -15,6 +15,7 @@ use App\Repositories\AssetAssignmentRepository;
 use App\Requests\Procurement\ProcurementRequest;
 use App\Services\Procurement\ProcurementService;
 use App\Services\AssetManagement\AssetTypeService;
+use Illuminate\Support\Facades\DB;
 
 class ProcurementController extends Controller
 {
@@ -64,6 +65,7 @@ class ProcurementController extends Controller
         }
     }
 
+
     public function create()
     {
         try {
@@ -89,6 +91,35 @@ class ProcurementController extends Controller
             return redirect()->route($this->view . 'index')->with('success', 'Request Added Successfully');
         } catch (\Exception $e) {
             return  redirect()->back()->with('danger', $e->getMessage());
+        }
+    }
+
+    public function edit($id)
+    {
+        $this->authorize('edit_assets');
+        try {
+            $employeeSelect = ['id', 'name'];
+            $typeSelect = ['id', 'name'];
+            $assetType = $this->assetTypeService->getAllActiveAssetTypes($typeSelect);
+            $employees = $this->userRepo->getAllVerifiedEmployeeOfCompany($employeeSelect);
+            $procurementDetail = $this->procurementService->findProcurementById($id);
+            return view($this->view . 'edit', compact('procurementDetail', 'assetType', 'employees'));
+        } catch (Exception $exception) {
+            return redirect()->back()->with('danger', $exception->getMessage());
+        }
+    }
+
+    public function update(ProcurementRequest $request, $id)
+    {
+        try {
+            $validatedData = $request->validated();
+            $this->procurementService->updateProcurement($id, $validatedData);
+            return redirect()->route('admin.procurement.index')
+                ->with('success', 'Request Updated Successfully');
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return redirect()->back()->with('danger', $exception->getMessage())
+                ->withInput();
         }
     }
 }

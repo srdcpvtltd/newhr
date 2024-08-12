@@ -60,4 +60,17 @@ class ProcurementRepository
     {
         return Procurement::create($data)->fresh();
     }
+
+    public function findProcurementById($id, $select = ['*'], $with = [])
+    {
+        return Procurement::select($select)
+            ->with($with)
+            ->where('id', $id)
+            ->first();
+    }
+
+    public function update($procurement_detail,$validatedData)
+    {
+        return $procurement_detail->update($validatedData);
+    }
 }

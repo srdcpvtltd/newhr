@@ -34,7 +34,6 @@ class ProcurementRequest extends FormRequest
                     ->where('is_active', 1)
             ],
             'quantity' => 'required',
-            'amount' => 'required',
             'request_date' => 'required',
             'delivery_date' => ['required', 'after_or_equal:request_date'],
             'purpose' => ['nullable', 'string'],

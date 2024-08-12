@@ -30,7 +30,6 @@ return new class extends Migration
             $table->unsignedBigInteger('updated_by')->nullable();
 
             $table->foreign('type_id')->references('id')->on('asset_types');
-            $table->foreign('created_by')->references('id')->on('users');
             $table->foreign('updated_by')->references('id')->on('users');
             $table->timestamps();
         });

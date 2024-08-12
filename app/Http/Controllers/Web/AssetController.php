@@ -102,8 +102,9 @@ class AssetController extends Controller
             $typeSelect = ['id', 'name'];
             $assetType = $this->assetTypeService->getAllActiveAssetTypes($typeSelect);
             $employees = $this->userRepo->getAllVerifiedEmployeeOfCompany($employeeSelect);
+            $brands = $this->brandRepo->getBrandlist(['id', 'name']);
             $assetDetail = $this->assetService->findAssetById($id);
-            return view($this->view . 'edit', compact('assetDetail', 'assetType', 'employees'));
+            return view($this->view . 'edit', compact('assetDetail','brands', 'assetType', 'employees'));
         } catch (Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }

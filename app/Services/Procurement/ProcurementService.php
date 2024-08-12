@@ -25,4 +25,31 @@ class ProcurementService
             throw $exception;
         }
     }
+
+    public function findProcurementById($id, $select = ['*'], $with = [])
+    {
+        try {
+            $procurementDetail =  $this->procurementRepo->findProcurementById($id, $select, $with);
+            if (!$procurementDetail) {
+                throw new \Exception('Procurement Not Found', 400);
+            }
+            return $procurementDetail;
+        } catch (Exception $exception) {
+            throw $exception;
+        }
+    }
+
+    public function updateProcurement($id, $validatedData)
+    {
+        try {
+            $procurement_detail = $this->findProcurementById($id);
+            DB::beginTransaction();
+            $updateStatus = $this->procurementRepo->update($procurement_detail, $validatedData);
+            DB::commit();
+            return $updateStatus;
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
 }

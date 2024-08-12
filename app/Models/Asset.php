@@ -29,7 +29,7 @@ class Asset extends Model
         'updated_by'
     ];
 
-    const IS_WORKING = ['yes','no','maintenance'];
+    const IS_WORKING = ['yes', 'no', 'maintenance'];
 
     const BOOLEAN_DATA = [
         0 => 'no',
@@ -66,16 +66,16 @@ class Asset extends Model
 
     public function type(): BelongsTo
     {
-        return $this->belongsTo(AssetType::class,'type_id','id');
+        return $this->belongsTo(AssetType::class, 'type_id', 'id');
     }
 
     public function assignedTo(): BelongsTo
     {
-        return $this->belongsTo(User::class,'assigned_to','id')->withDefault();
+        return $this->belongsTo(User::class, 'assigned_to', 'id')->withDefault();
     }
 
-    public function assetAssignments(){
+    public function assetAssignments()
+    {
         return $this->hasMany(AssetAssignment::class);
     }
-
 }
