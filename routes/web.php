@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AdminAuthController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Web\BrandsController;
 use App\Http\Controllers\Web\AppSettingController;
 use App\Http\Controllers\Web\AssetController;
@@ -52,6 +53,7 @@ use App\Http\Controllers\Web\TeamMeetingController;
 use App\Http\Controllers\Web\TimeLeaveController;
 use App\Http\Controllers\Web\UnderTimeSettingController;
 use App\Http\Controllers\Web\UserController;
+use App\Http\Controllers\Web\VendorRegisterController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -67,6 +69,9 @@ Route::get('/', function () {
 
 /** app privacy policy route */
 Route::get('privacy', [PrivacyPolicyController::class, 'index'])->name('privacy-policy');
+Route::get('vendor/register', [VendorRegisterController::class, 'viewRegistrationForm'])->name('vendor.register');
+Route::post('vendor/create', [VendorRegisterController::class, 'store'])->name('vendor.create');
+
 
 Route::group([
     'prefix' => 'admin',
@@ -76,7 +81,7 @@ Route::group([
     Route::get('login', [AdminAuthController::class, 'showAdminLoginForm'])->name('login');
     Route::post('login', [AdminAuthController::class, 'login'])->name('login.process');
 
-    Route::group(['middleware' => ['admin.auth','permission']], function () {
+    Route::group(['middleware' => ['admin.auth', 'permission']], function () {
 
         Route::post('logout', [AdminAuthController::class, 'logout'])->name('logout');
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -85,7 +90,7 @@ Route::group([
         Route::resource('users', UserController::class);
         Route::get('users/toggle-status/{id}', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
         Route::get('users/export/forms', [UserController::class, 'exportForm'])->name('users.exportForm');
-        
+
         Route::get('employees/import-csv', [UserController::class, 'employeeImport'])->name('employees.import-csv.show');
         Route::post('employees/import-csv', [UserController::class, 'importEmployee'])->name('employees.import-excel.store');
 
@@ -176,11 +181,11 @@ Route::group([
         Route::get('employees/attendance/delete/{id}', [AttendanceController::class, 'delete'])->name('attendance.delete');
         Route::get('employees/attendance/change-status/{id}', [AttendanceController::class, 'changeAttendanceStatus'])->name('attendances.change-status');
         Route::get('employees/attendance/{type}', [AttendanceController::class, 'dashboardAttendance'])->name('dashboard.takeAttendance');
-        
+
         //Attendance Regularization
-        Route::resource('regularization',RegularizationController::class);
-        Route::get('regularization/approve/{id}',[RegularizationController::class,'approveRegularization'])->name('regularization.approveRegularization');
-        Route::get('regularization/reject/{id}',[RegularizationController::class,'rejectRegularization'])->name('regularization.rejectRegularization');
+        Route::resource('regularization', RegularizationController::class);
+        Route::get('regularization/approve/{id}', [RegularizationController::class, 'approveRegularization'])->name('regularization.approveRegularization');
+        Route::get('regularization/reject/{id}', [RegularizationController::class, 'rejectRegularization'])->name('regularization.rejectRegularization');
         Route::post('ajax-regularization', [RegularizationController::class, 'checkAttendance'])->name('ajaxRegularizationModal');
         Route::post('create-regularization', [RegularizationController::class, 'createRegularization'])->name('createAjaxRegularization');
 
@@ -258,7 +263,7 @@ Route::group([
         Route::get('task-comment/reply/delete/{replyId}', [TaskCommentController::class, 'deleteReply'])->name('reply.delete');
 
         /** Support route */
-        Route::get('supports/get-all-query',[SupportController::class,'getAllQueriesPaginated'])->name('supports.index');
+        Route::get('supports/get-all-query', [SupportController::class, 'getAllQueriesPaginated'])->name('supports.index');
         Route::get('supports/change-seen-status/{queryId}', [SupportController::class, 'changeIsSeenStatus'])->name('supports.changeSeenStatus');
         Route::put('supports/update-status/{id}', [SupportController::class, 'changeQueryStatus'])->name('supports.updateStatus');
         Route::get('supports/delete/{id}', [SupportController::class, 'delete'])->name('supports.delete');
@@ -281,22 +286,22 @@ Route::group([
         Route::get('attendance-detail-export', [DataExportController::class, 'exportAttendanceDetail'])->name('attendance-lists-export');
 
         /** Asset Management route */
-        Route::resource('asset-types', AssetTypeController::class,[
+        Route::resource('asset-types', AssetTypeController::class, [
             'except' => ['destroy']
         ]);
         Route::get('asset-types/delete/{id}', [AssetTypeController::class, 'delete'])->name('asset-types.delete');
         Route::get('asset-types/toggle-status/{id}', [AssetTypeController::class, 'toggleIsActiveStatus'])->name('asset-types.toggle-status');
 
-        Route::resource('assets', AssetController::class,[
+        Route::resource('assets', AssetController::class, [
             'except' => ['destroy']
         ]);
-        Route::resource('asset_assignment', AssetAssignmentController::class,[
+        Route::resource('asset_assignment', AssetAssignmentController::class, [
             'except' => ['destroy']
         ]);
         Route::get('assets/delete/{id}', [AssetController::class, 'delete'])->name('assets.delete');
         Route::get('assets/toggle-status/{id}', [AssetController::class, 'changeAvailabilityStatus'])->name('assets.change-Availability-status');
 
-        Route::resource('asset_assignment', AssetAssignmentController::class,[
+        Route::resource('asset_assignment', AssetAssignmentController::class, [
             'except' => ['destroy']
         ]);
         Route::get('/download-pdf', [AssetAssignmentController::class, 'downloadAssignmentPDF'])->name('download.pdf');
@@ -306,28 +311,28 @@ Route::group([
         Route::post('asset-assignments/asset-return', [AssetAssignmentController::class, 'return'])->name('asset_return');
 
         // Procuremnets
-        Route::resource('brands', BrandsController::class,[
+        Route::resource('brands', BrandsController::class, [
             'except' => ['destroy']
         ]);
         Route::get('brands/delete/{id}', [BrandsController::class, 'delete'])->name('brands.delete');
         Route::get('brands/toggle-status/{id}', [BrandsController::class, 'toggleIsActiveStatus'])->name('brands.toggle-status');
 
         // Procuremnets
-        Route::resource('procurement', ProcurementController::class,[
+        Route::resource('procurement', ProcurementController::class, [
             'except' => ['destroy']
         ]);
         Route::get('procurement/delete/{id}', [ProcurementController::class, 'delete'])->name('procurement.delete');
 
         /** Salary Component route */
-        Route::resource('salary-components', SalaryComponentController::class,[
-            'except' => ['destroy','show']
+        Route::resource('salary-components', SalaryComponentController::class, [
+            'except' => ['destroy', 'show']
         ]);
         Route::get('salary-components/delete/{id}', [SalaryComponentController::class, 'delete'])->name('salary-components.delete');
         Route::get('salary-components/change-status/{id}', [SalaryComponentController::class, 'toggleSalaryComponentStatus'])->name('salary-components.toggle-status');
 
         /** Payment Methods route */
-        Route::resource('payment-methods', PaymentMethodController::class,[
-            'except' => ['destroy','show','edit']
+        Route::resource('payment-methods', PaymentMethodController::class, [
+            'except' => ['destroy', 'show', 'edit']
         ]);
         Route::get('payment-methods/delete/{id}', [PaymentMethodController::class, 'deletePaymentMethod'])->name('payment-methods.delete');
         Route::get('payment-methods/change-status/{id}', [PaymentMethodController::class, 'togglePaymentMethodStatus'])->name('payment-methods.toggle-status');
@@ -337,22 +342,22 @@ Route::group([
         Route::post('payment-currency', [PaymentCurrencyController::class, 'updateOrSetPaymentCurrency'])->name('payment-currency.save');
 
         /** Salary TDS route */
-        Route::resource('salary-tds', SalaryTDSController::class,[
-            'except' => ['destroy','show']
+        Route::resource('salary-tds', SalaryTDSController::class, [
+            'except' => ['destroy', 'show']
         ]);
         Route::get('salary-tds/delete/{id}', [SalaryTDSController::class, 'deleteSalaryTDS'])->name('salary-tds.delete');
         Route::get('salary-tds/change-status/{id}', [SalaryTDSController::class, 'toggleSalaryTDSStatus'])->name('salary-tds.toggle-status');
 
         /** Salary Group route */
-        Route::resource('salary-groups', SalaryGroupController::class,[
-            'except' => ['destroy','show']
+        Route::resource('salary-groups', SalaryGroupController::class, [
+            'except' => ['destroy', 'show']
         ]);
         Route::get('salary-groups/delete/{id}', [SalaryGroupController::class, 'deleteSalaryGroup'])->name('salary-groups.delete');
         Route::get('salary-groups/change-status/{id}', [SalaryGroupController::class, 'toggleSalaryGroupStatus'])->name('salary-groups.toggle-status');
 
         /** Employee Salary route */
-        Route::resource('employee-salaries', EmployeeSalaryController::class,[
-            'except' =>['destroy','create','edit','update','store','show']
+        Route::resource('employee-salaries', EmployeeSalaryController::class, [
+            'except' => ['destroy', 'create', 'edit', 'update', 'store', 'show']
         ]);
         Route::get('employee-salaries/update-cycle/{employeeId}/{cycle}', [EmployeeSalaryController::class, 'changeSalaryCycle'])->name('employee-salaries.update-salary-cycle');
         Route::post('employee-salaries/payroll-create', [EmployeeSalaryController::class, 'payrollCreate'])->name('employee-salaries.payroll-create');
@@ -383,8 +388,8 @@ Route::group([
         Route::get('advance-salaries/setting/', [AdvanceSalaryController::class, 'setting'])->name('advance-salaries.setting');
 
         /** Advance Salary route */
-        Route::resource('advance-salaries', AdvanceSalaryController::class,[
-            'except' => ['destroy','store','edit']
+        Route::resource('advance-salaries', AdvanceSalaryController::class, [
+            'except' => ['destroy', 'store', 'edit']
         ]);
         Route::get('advance-salaries/delete/{id}', [AdvanceSalaryController::class, 'delete'])->name('advance-salaries.delete');
 
@@ -392,23 +397,23 @@ Route::group([
 
         /** Payroll OverTime Setting route */
 
-        Route::resource('overtime', OverTimeSettingController::class,[
-        'except' => ['destroy']
+        Route::resource('overtime', OverTimeSettingController::class, [
+            'except' => ['destroy']
         ]);
         Route::get('overtime/delete/{id}', [OverTimeSettingController::class, 'delete'])->name('overtime.delete');
         Route::get('overtime/change-status/{id}', [OverTimeSettingController::class, 'toggleOTStatus'])->name('overtime.toggle-status');
 
 
         /** Payroll UnderTime Setting route */
-        Route::resource('under-time', UnderTimeSettingController::class,[
+        Route::resource('under-time', UnderTimeSettingController::class, [
             'except' => ['destroy']
         ]);
         Route::get('under-time/delete/{id}', [UnderTimeSettingController::class, 'delete'])->name('under-time.delete');
         Route::get('under-time/change-status/{id}', [UnderTimeSettingController::class, 'toggleUTStatus'])->name('under-time.toggle-status');
 
 
-        Route::resource('qr', QrCodeController::class,[
-            'except' => ['destroy','show']
+        Route::resource('qr', QrCodeController::class, [
+            'except' => ['destroy', 'show']
         ]);
         Route::get('qr/delete/{id}', [QrCodeController::class, 'delete'])->name('qr.destroy');
         Route::get('qr/print/{id}', [QrCodeController::class, 'print'])->name('qr.print');
@@ -422,15 +427,9 @@ Route::group([
 
         /** delete employee leave type */
         Route::get('employees/leave_type/delete/{id}', [UserController::class, 'deleteEmployeeLeaveType'])->name('employee_leave_type.delete');
-
     });
 });
 
-Route::fallback(function() {
+Route::fallback(function () {
     return view('errors.404');
 });
-
-
-
-
-
