@@ -82,7 +82,7 @@
                                                 </a>
                                                 @endif
                                                 <a style="margin-top: 3%;" href="{{ route('vendor.register') }}">
-                                                    {{ __("Register") }}
+                                                    {{ __("Vendor Register") }}
                                                 </a>
                                             </div>
                                         </form>

@@ -174,6 +174,9 @@ Route::group([
         Route::get('notifications/delete/{id}', [NotificationController::class, 'delete'])->name('notifications.delete');
         Route::get('notifications/send-notification/{id}', [NotificationController::class, 'sendNotificationToAllCompanyUser'])->name('notifications.send-notification');
 
+        //Vendor route
+        Route::resource('procurement_request', VendorRegisterController::class);
+
         /** Attendance route */
         Route::resource('attendances', AttendanceController::class);
         Route::get('employees/attendance/check-in/{companyId}/{userId}', [AttendanceController::class, 'checkInEmployee'])->name('employees.check-in');

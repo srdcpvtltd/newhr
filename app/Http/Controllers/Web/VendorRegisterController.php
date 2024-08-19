@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Repositories\BrandRepository;
+use App\Repositories\UserRepository;
+use App\Services\AssetManagement\AssetService;
+use App\Services\AssetManagement\AssetTypeService;
 use App\Services\Vendors\VendorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -10,9 +14,42 @@ use Illuminate\Support\Facades\Validator;
 class VendorRegisterController extends Controller
 {
 
+    private $view = 'admin.procurement_request.';
+
     public function __construct(
-        private VendorService $vendorService
+        private VendorService $vendorService,
+        private AssetService $assetService,
+        private AssetTypeService $assetTypeService,
+        private UserRepository $userRepo,
+        private BrandRepository $brandRepo
     ) {}
+
+    public function index(Request $request)
+    {
+        $this->authorize('list_assets');
+        try {
+            $filterParameters = [
+                'name' => $request->name ?? null,
+                'purchased_from' => $request->purchased_from ?? null,
+                'purchased_to' => $request->purchased_to ?? null,
+                'is_working' => $request->is_working ?? null,
+                'is_available' => $request->is_available ?? null,
+                'type' => $request->type ?? null,
+                'download_excel' => $request->download_excel ?? null
+            ];
+            $select = ['*'];
+            $with = ['type:id,name', 'assignedTo:id,name'];
+            $assetType = $this->assetTypeService->getAllAssetTypes(['id', 'name']);
+            $assetLists = $this->assetService->getAllAssetsPaginated($filterParameters, $select, $with);
+            if ($filterParameters['download_excel']) {
+                unset($filterParameters['download_excel']);
+                return Excel::download(new AssetListExport($filterParameters), 'Asset-report.xlsx');
+            }
+            return view($this->view . 'index', compact('assetLists', 'assetType', 'filterParameters'));
+        } catch (Exception $exception) {
+            return redirect()->back()->with('danger', $exception->getMessage());
+        }
+    }
 
     public function viewRegistrationForm()
     {
@@ -44,7 +81,7 @@ class VendorRegisterController extends Controller
             }
             $this->vendorService->saveVendorDetails($request->all());
 
-            return redirect()->route('auth.login');
+            return redirect()->route('admin.login');
         } catch (\Throwable $th) {
             return redirect()->back();
         }

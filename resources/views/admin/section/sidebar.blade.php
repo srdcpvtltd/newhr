@@ -1,20 +1,22 @@
-
-
-    <!-- sidebar -->
-    <nav class="sidebar">
-        <div class="sidebar-header">
-            <a href="{{route('admin.dashboard')}}" class="sidebar-brand">
-               <img src="{{asset(\App\Models\Company::UPLOAD_PATH.\App\Helpers\AppHelper::getCompanyLogo())}}"  />
-            </a>
-            <div class="sidebar-toggler not-active">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
+<!-- sidebar -->
+<nav class="sidebar">
+    <div class="sidebar-header">
+        <a href="{{route('admin.dashboard')}}" class="sidebar-brand">
+            <img src="{{asset(\App\Models\Company::UPLOAD_PATH.\App\Helpers\AppHelper::getCompanyLogo())}}" />
+        </a>
+        <div class="sidebar-toggler not-active">
+            <span></span>
+            <span></span>
+            <span></span>
         </div>
+    </div>
 
-        <div class="sidebar-body">
-            <ul class="nav sidebar-menu">
+    <div class="sidebar-body">
+        <ul class="nav sidebar-menu">
+            @if(Auth::User()->role->id == 2)
+                @include('admin.section.partial.procurement')
+                @include('admin.section.partial.procurement_request')
+            @else
                 @include('admin.section.partial.dashboard')
                 @include('admin.section.partial.company')
                 @include('admin.section.partial.user')
@@ -30,15 +32,13 @@
                 @include('admin.section.partial.tada')
                 @include('admin.section.partial.shiftManagement')
                 @include('admin.section.partial.assetManagement')
-                @include('admin.section.partial.procurement')
                 @include('admin.section.partial.staticPageContent')
                 @include('admin.section.partial.ticket')
                 @include('admin.section.partial.setting')
                 @include('admin.section.partial.regularization')
+            @endif
 
-            </ul>
-        </div>
-    </nav>
-    <!-- partial -->
-
-
+        </ul>
+    </div>
+</nav>
+<!-- partial -->

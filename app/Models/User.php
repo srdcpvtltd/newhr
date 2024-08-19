@@ -34,6 +34,7 @@ class User extends Authenticatable
     const ONLINE = 1;
     const OFFLINE = 0;
     const FIELD = 0;
+    const VENDOR = 2;
     const OFFICE = 1;
     const DEMO_USERS_USERNAME = ['admin123', 'employee1'];
 
