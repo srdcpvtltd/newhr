@@ -10,8 +10,7 @@ use Illuminate\Support\Facades\Hash;
 
 class VendorRepository
 {
-
-
+    const IS_ACTIVE =1;
     public function getVendorByEmail($userEmail, $select = ['*'])
     {
         return Vendor::select($select)
@@ -27,7 +26,7 @@ class VendorRepository
             return true;
         }
         return !Hash::check($request->get('password'), $vendorByemail->password);
-        dd($vendorByemail->email);
+       
     }
 
     public function store($validatedData)
