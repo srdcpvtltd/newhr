@@ -146,6 +146,13 @@
                     </li>
                 @endcan
 
+                <li  class="nav-item {{request()->routeIs('admin.leadsSetting.index.*')  ? 'active' : '' }}">
+                    <a
+                        href="{{route('admin.leadsSetting.index')}}"
+                        data-href="{{route('admin.leadsSetting.index')}}"
+                        class="nav-link {{request()->routeIs('admin.leadsSetting.index.*') ? 'active' : ''}}"> Leads Setting</a>
+                </li>
+
 
             </ul>
         </div>

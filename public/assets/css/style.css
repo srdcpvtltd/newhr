@@ -5665,7 +5665,7 @@ div.tox .btn-group-vertical > .btn-group:not(:first-child) > .tox-button,
 }
 
 .modal-backdrop {
-  position: fixed;
+  position: relative;
   top: 0;
   left: 0;
   z-index: 1050;
@@ -5676,9 +5676,9 @@ div.tox .btn-group-vertical > .btn-group:not(:first-child) > .tox-button,
 .modal-backdrop.fade {
   opacity: 0;
 }
-.modal-backdrop.show {
+/* .modal-backdrop.show {
   opacity: 0.5;
-}
+} */
 
 .modal-header {
   flex-shrink: 0;

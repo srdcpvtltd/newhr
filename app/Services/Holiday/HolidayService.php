@@ -117,20 +117,20 @@ class HolidayService
 
     public function getAllActiveHolidaysFromNowToGivenNumberOfDays($numberOfDays)
     {
-        try{
+        try {
             $nowDate = Carbon::now()->format('Y-m-d');
             $toDate = Carbon::now()->addDay($numberOfDays)->format('Y-m-d');
-            return $this->holidayRepo->getAllActiveHolidaysBetweenGivenDates($nowDate,$toDate);
-        }catch (Exception $exception){
+            return $this->holidayRepo->getAllActiveHolidaysBetweenGivenDates($nowDate, $toDate);
+        } catch (Exception $exception) {
             throw $exception;
         }
     }
 
     public function getCurrentActiveHoliday()
     {
-        try{
+        try {
             return $this->holidayRepo->getRecentActiveHoliday();
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             throw $exception;
         }
     }

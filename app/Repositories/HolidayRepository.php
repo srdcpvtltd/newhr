@@ -13,7 +13,14 @@ class HolidayRepository
         $holidayLists = Holiday::with($with)->select($select)
             ->when(isset($filterParameters['event']), function ($query) use ($filterParameters) {
                 $query->where('event', 'like', '%' . $filterParameters['event'] . '%');
-            });
+            }) // old code ; is missing here
+
+        // new code
+        ->when(isset($filterParameters['branch_id']), function ($query) use ($filterParameters) {
+            $query->where('branch_id', $filterParameters['branch_id']);
+        });
+        // end new code
+
         if (isset($filterParameters['start_date'])) {
             $holidayLists
                 ->whereBetween('event_date', [$filterParameters['start_date'], $filterParameters['end_date']]);
@@ -26,6 +33,7 @@ class HolidayRepository
                     $query->whereMonth('event_date', $filterParameters['month']);
                 });
         }
+
         return $holidayLists
             ->orderBy('event_date', 'ASC')
             ->paginate(Holiday::RECORDS_PER_PAGE);
@@ -58,22 +66,22 @@ class HolidayRepository
         ]);
     }
 
-    public function getAllActiveHolidays($date,$select=['*'])
+    public function getAllActiveHolidays($date, $select = ['*'])
     {
         $holidayLists = Holiday::select($select)
             ->where('is_active', 1);
-            if (isset($date['start_date'])) {
-                $holidayLists->whereBetween('event_date', [$date['start_date'], $date['end_date']]);
-            } else {
-                $holidayLists->whereYear('event_date',$date['year'])
-                ->orWhereYear('event_date',Carbon::now()->addYears(1));
-            }
+        if (isset($date['start_date'])) {
+            $holidayLists->whereBetween('event_date', [$date['start_date'], $date['end_date']]);
+        } else {
+            $holidayLists->whereYear('event_date', $date['year'])
+                ->orWhereYear('event_date', Carbon::now()->addYears(1));
+        }
         return $holidayLists
             ->orderBy('event_date', 'ASC')
             ->get();
     }
 
-    public function getAllActiveHolidaysBetweenGivenDates($nowDate,$toDate)
+    public function getAllActiveHolidaysBetweenGivenDates($nowDate, $toDate)
     {
         return Holiday::where('is_active', 1)
             ->whereBetween('event_date', [$nowDate, $toDate])
@@ -85,7 +93,7 @@ class HolidayRepository
     {
 
         $nowDate = Carbon::now()->format('Y-m-d');
-        return  Holiday::where('is_active', 1)
+        return Holiday::where('is_active', 1)
             ->whereDate('event_date', '>=', $nowDate)
             ->orderBy('event_date')
             ->first();

@@ -16,6 +16,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Passport\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -207,4 +209,22 @@ class User extends Authenticatable
     public function procurements(){
         return $this->hasMany(Procurement::class);
     }
+
+    public function hasRole($role)
+    {
+        // Assuming you have a 'roles' table with a 'name' column
+        // and a 'role_user' pivot table to connect users with roles
+        return $this->roles()->where('name', $role)->exists();
+    }
+
+    public function roles(): BelongsToMany
+{
+    return $this->belongsToMany(Role::class);
+}
+
+    public function isAdmin()
+    {
+        return $this->hasRole('admin');
+    }
+
 }

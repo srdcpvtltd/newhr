@@ -36,6 +36,9 @@ use App\Http\Controllers\Web\RoleController;
 use App\Http\Controllers\Web\RouterController;
 use App\Http\Controllers\Web\AdvanceSalaryController;
 use App\Http\Controllers\Web\AssetAssignmentController;
+use App\Http\Controllers\Web\CrmEnqueriesController;
+use App\Http\Controllers\Web\LeadSourceController;
+use App\Http\Controllers\Web\LeadsSettingController;
 use App\Http\Controllers\Web\ProcurementController;
 use App\Http\Controllers\Web\RegularizationController;
 use App\Http\Controllers\Web\SalaryComponentController;
@@ -66,6 +69,17 @@ Auth::routes([
 Route::get('/', function () {
     return redirect()->route('admin.login');
 });
+
+
+/** Crm Enquery route */
+// Route::get('/crmenquery', function () {
+//     return redirect()->route('crmenquery.create');
+// });
+Route::get('/crmenquery',[CrmEnqueriesController::class, 'index'])->name('crmenquery.index');
+// Route::get('crmenquery/create',[CrmEnqueriesController::class, 'create'])->name('crmenquery.create');
+Route::post('crmenquery',[CrmEnqueriesController::class, 'store'])->name('crmenquery.store');
+
+
 
 /** app privacy policy route */
 Route::get('privacy', [PrivacyPolicyController::class, 'index'])->name('privacy-policy');
@@ -230,6 +244,39 @@ Route::group([
         Route::get('clients/delete/{id}', [ClientController::class, 'delete'])->name('clients.delete');
         Route::get('clients/toggle-status/{id}', [ClientController::class, 'toggleIsActiveStatus'])->name('clients.toggle-status');
 
+          /** crmenquery route */
+        // Route::resource('crmenquery', CrmEnqueriesController::class);
+        Route::get('/crmenquery',[CrmEnqueriesController::class, 'list'])->name('crmenquery.index');
+        Route::get('/crmenquery/{id}/edit',[CrmEnqueriesController::class, 'edit_crm'])->name('crmenquery.edit');
+        Route::put('crmenquery/{id}',[CrmEnqueriesController::class, 'update'])->name('crmenquery.update');
+        Route::get('crmenquery/get-users-by-department/{departmentId}', [CrmEnqueriesController::class,'getUsersByDepartment'])->name('crmenquery.getUsersByDepartment');
+        // Route::get('crmenquery/{id}',[CrmEnqueriesController::class, 'show'])->name('admin.crmenquery.show');
+        Route::get('crmenquery/crm-enqueries/{id}', [CrmEnqueriesController::class,'show'])->name('crmenquery.show');
+
+          /** Leads Source setting */
+        Route::get('/leads-setting',[LeadsSettingController::class, 'index'])->name('leadsSetting.index');
+        Route::post('leads-setting/leadsource/store', [LeadsSettingController::class, 'store'])->name('leadsource.store');
+        Route::put('/leads-setting/leadsource/update/{id}', [LeadsSettingController::class, 'update'])->name('leadsource.update');
+        Route::put('leads-setting/lead-source-delete/{id}', [LeadsSettingController::class, 'destroy'])->name('leadsource.destroy');
+
+        /** Leads Status setting */
+        Route::post('leads-setting/leadstatus/store', [LeadsSettingController::class, 'leadstatus_store'])->name('leadstatus.store');
+        
+        Route::put('leads-setting/leadstatus/update/{id}', [LeadsSettingController::class, 'leadstatus_update'])->name('leadstatus.update');
+
+        Route::put('leads-setting/lead-status-delete/{id}', [LeadsSettingController::class, 'leadstatus_destroy'])->name('leadstatus.destroy');
+        
+        /** Leads Agent setting */
+        Route::get('leads-setting/leadagent/create', [LeadsSettingController::class,'leadagent_create'])->name('admin.leadagent.create');
+        Route::post('leads-setting/leadagent/store', [LeadsSettingController::class, 'leadagent_store'])->name('leadagent.store');
+        Route::put('leads-setting/lead-agent-delete/{id}', [LeadsSettingController::class, 'leadAgentDelete'])->name('leadagent.delete');
+
+         /** Leads Category setting */
+         Route::post('leads-setting/leadcategory/store', [LeadsSettingController::class, 'leadcategory_store'])->name('leadcategory.store');
+         Route::put('leads-setting/leadcategory/update/{id}', [LeadsSettingController::class, 'leadcategory_update'])->name('leadcategory.update');
+
+         Route::put('leads-setting/lead-category-delete/{id}', [LeadsSettingController::class, 'leadcategory_destroy'])->name('leadcategory.destroy');
+        
         /** Project Management route */
         Route::resource('projects', ProjectController::class);
         Route::get('projects/delete/{id}', [ProjectController::class, 'delete'])->name('projects.delete');

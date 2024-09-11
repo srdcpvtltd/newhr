@@ -37,8 +37,10 @@ class HolidayRequest extends FormRequest
 
         $rules = [
             'event' => 'required|string',
-            'note' => 'nullable|string|max:500',
+            
             'is_public_holiday'=>'nullable',
+            'branch_id' => 'required',
+            'note' => 'nullable|string|max:500',
         ];
         if ($this->isMethod('put')) {
             $rules['event_date'] = ['required','date','unique:holidays,event_date,'.$this->holiday];

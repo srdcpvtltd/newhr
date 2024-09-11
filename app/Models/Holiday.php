@@ -20,7 +20,8 @@ class Holiday extends Model
         'is_active',
         'created_by',
         'updated_by',
-        'is_public_holiday'
+        'is_public_holiday',
+        'branch_id',
     ];
 
     const RECORDS_PER_PAGE = 20;
@@ -53,4 +54,8 @@ class Holiday extends Model
     {
         return $this->belongsTo(Company::class, 'company_id', 'id');
     }
+
+    
+
+
 }

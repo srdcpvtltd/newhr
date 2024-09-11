@@ -54,6 +54,7 @@
                 $('.modal-title').html('Holiday Detail');
                 $('.occasion').text(data.data.event);
                 $('.occasion_date').text((data.data.event_date));
+                $('.branch_name').text(data.data.branch_name);
                 $('.note').text(data.data.note);
                 $('#addslider').modal('show');
             })

@@ -74,6 +74,12 @@ class DepartmentController extends Controller
         }
     }
 
+    public function getUsersByDepartment($departmentId)
+    {
+        $users = User::where('department_id', $departmentId)->get();
+        return response()->json($users);
+    }
+
     public function getAllDepartmentsByBranchId($branchId): JsonResponse|RedirectResponse
     {
         $this->authorize('create_department');
@@ -185,5 +191,11 @@ class DepartmentController extends Controller
             return redirect()->back()->with('danger', $exception->getMessage());
         }
     }
+
+    public function show($departmentId)
+{
+    $users = User::where('department_id', $departmentId)->get();
+    return response()->json($users);
+}
 
 }

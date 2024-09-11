@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardRepository
 {
-    public function getCompanyDashboardDetail($companyId, $date)
+    public function getCompanyDashboardDetail($companyId, $date, $branchId = null)
     {
         $currentDate = AppHelper::getCurrentDateInYmdFormat();
-
+        $branchFilter = $branchId ? ['branch_id' => $branchId] : [];
         $totalCompanyEmployee = DB::table('users')
             ->select('company_id', DB::raw('COUNT(id) as total_employee'))
             ->whereNull('deleted_at')
@@ -61,7 +61,8 @@ class DashboardRepository
 
         $totalHolidaysInYear = DB::table('holidays')
             ->select('company_id', DB::raw('count(id) as total_holidays'))
-            ->where('is_active', '1');
+            ->where('is_active', '1')
+            ->where($branchFilter);
         if (isset($date['start_date'])) {
             $totalHolidaysInYear->whereBetween('event_date', [$date['start_date'], $date['end_date']]);
         } else {

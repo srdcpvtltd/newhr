@@ -43,11 +43,19 @@ class DashboardController extends Controller
                 'completedTask:id,project_id'
             ];
             $companyId = AppHelper::getAuthUserCompanyId();
+            $branchId = auth()->user()->branch_id; // Ensure branch ID is correctly fetched
             if (!$companyId) {
                 throw new Exception('Company Detail Not Found');
             }
             $date = AppHelper::yearDetailToFilterData();
-            $dashboardDetail = $this->dashboardRepo->getCompanyDashboardDetail($companyId, $date);
+            
+            if($branchId == null) {
+                $dashboardDetail = $this->dashboardRepo->getCompanyDashboardDetail($companyId, $date);
+            }else {
+                $dashboardDetail = $this->dashboardRepo->getCompanyDashboardDetail($companyId, $date, $branchId);
+            }
+            
+            
             $topClients = $this->clientService->getTopClientsOfCompany();
             $taskPieChartData = $this->taskService->getTaskDataForPieChart();
             $projectCardDetail = $this->projectService->getProjectCardData();

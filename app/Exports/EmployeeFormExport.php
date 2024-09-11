@@ -54,8 +54,8 @@ class EmployeeFormExport implements FromCollection, WithHeadings, WithEvents, Wi
         ];
 
         $this->selects = $selects;
-        $this->row_count = 100; //number of rows that will have the dropdown
-        $this->column_count = 26; //number of columns to be auto sized
+        $this->row_count = 10000; //number of rows that will have the dropdown
+        $this->column_count = 260; //number of columns to be auto sized
     }
 
     public function collection()
