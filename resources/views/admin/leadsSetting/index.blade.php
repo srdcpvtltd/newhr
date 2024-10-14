@@ -36,6 +36,11 @@
                             data-bs-target="#pills-category" type="button" role="tab" aria-controls="pills-category"
                             aria-selected="false">Lead Category</button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-setting-tab" data-bs-toggle="pill"
+                            data-bs-target="#pills-setting" type="button" role="tab" aria-controls="pills-setting"
+                            aria-selected="false">Other Settings</button>
+                    </li>
                 </ul>
                 <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab"
@@ -47,7 +52,7 @@
                     <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab"
                         tabindex="0">
                         {{-- Lead Status  --}}
-                       @include('admin.leadsSetting.leadStatus.index')
+                        @include('admin.leadsSetting.leadStatus.index')
                         {{-- End Lead Status  --}}
                     </div>
                     <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab"
@@ -62,17 +67,23 @@
                         @include('admin.leadsSetting.leadCategory.index')
                         {{-- End Lead Category  --}}
                     </div>
+                    <div class="tab-pane fade" id="pills-setting" role="tabpanel" aria-labelledby="pills-setting-tab"
+                    tabindex="0">
+                    {{-- Lead Setting  --}}
+                    @include('admin.leadsSetting.otherSetting.index')
+                    {{-- End Lead Setting  --}}
+                </div>
                 </div>
             </div>
         </div>
     </section>
 
-{{-- new modal  --}}
+    {{-- new modal  --}}
     @include('admin.leadsSetting.leadAgent.modal')
     @include('admin.leadsSetting.leadCategory.modal')
     @include('admin.leadsSetting.leadSource.modal')
     @include('admin.leadsSetting.leadStatus.modal')
-{{-- End Modal  --}}
+    {{-- End Modal  --}}
 
 
 @endsection

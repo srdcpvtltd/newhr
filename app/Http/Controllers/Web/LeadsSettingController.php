@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\LeadAgent;
 use App\Models\LeadCategory;
+use App\Models\LeadForms;
+use App\Models\LeadSetting;
 use App\Models\LeadSource;
 use App\Models\LeadStatus;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 
 class LeadsSettingController extends Controller
@@ -19,20 +22,87 @@ class LeadsSettingController extends Controller
      */
     public function index()
     {
-        // Lead Sources
-        $leadSources = LeadSource::paginate(10);
 
-        // Lead Status
-        $leadStatus = LeadStatus::paginate(10);
+        $this->authorize('leads_setting');
+        try {
+            // Lead Sources
+            $leadSources = LeadSource::paginate(10);
 
-        // Lead Agent
-        $leadAgent = LeadAgent::paginate(10);
+            // Lead Status
+            $leadStatus = LeadStatus::paginate(10);
 
-        // Lead Category
-        $leadCategory = LeadCategory::paginate(10);
+            // Lead Agent
+            $leadAgent = LeadAgent::paginate(10);
 
-        $users = User::whereNotIn('id', LeadAgent::pluck('userid'))->get();
-        return view('admin.leadsSetting.index', compact('leadSources','leadStatus', 'leadAgent', 'leadCategory', 'users'));
+            // Lead Category
+            $leadCategory = LeadCategory::paginate(10);
+
+            $users = User::whereNotIn('id', LeadAgent::pluck('userid'))->get();
+
+            $setting = LeadSetting::first();
+
+            $leadform = LeadForms::first();
+
+            return view('admin.leadsSetting.index', compact('leadSources', 'leadStatus', 'leadAgent', 'leadCategory', 'users', 'setting', 'leadform'));
+        } catch (Exception $exception) {
+            //throw $exception;
+            return redirect()->back()->with('danger', $exception->getMessage());
+        }
+    }
+
+    public function setting(Request $request)
+    {
+        // Validation for 1st Setting
+        $request->validate([
+            'limit' => 'required|integer|min:5|max:50',
+            'leadformlink' => 'required|url',
+        ], [
+            'datanum.required' => 'Limit Must be set to Minimum 5',
+        ]);
+
+        // Get the first record or create a new one if none exists
+        $leadSetting1 = LeadSetting::firstOrNew();
+
+        // Update the data
+        $leadSetting1->datanum = $request->limit;
+        $leadSetting1->leadformlink = $request->leadformlink;
+
+        // Save the data
+        $leadSetting1->save();
+
+        // Redirect back with a success message
+        return redirect()->back()->with('success', 'Settings updated successfully.');
+    }
+
+    public function setting2(Request $request2)
+    {
+        // Validation for 2nd setting
+        $request2->validate([
+            'leadformtitle' => 'required|max:15',
+        ], [
+            'leadformtitle.required' => 'Form Title Maximum 15 Words Allowed !',
+        ]);
+
+        // Get the first record or create a new one if none exists
+
+        $leadSetting2 = LeadSetting::firstOrNew();
+
+        // Update the data
+        $leadSetting2->leadformtitle = $request2->leadformtitle;
+
+        // Save the data
+        $leadSetting2->save();
+
+        // Redirect back with a success message
+        return redirect()->back()->with('success', 'Settings updated successfully.');
+    }
+
+    public function displayfield(Request $request)
+    {
+        $column = $request->input('column');
+        $value = $request->input('value');
+        LeadForms::first()->update([$column => $value]);
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -85,11 +155,13 @@ class LeadsSettingController extends Controller
         // Validate the request
         $request->validate([
             'name' => 'required|string|max:255|unique:lead_statuses',
+            'color' => 'required|string|max:255|unique:lead_statuses',
         ]);
 
         // Create a new lead source
         LeadStatus::create([
             'name' => $request->input('name'),
+            'color' => $request->input('color'),
         ]);
 
         // Redirect back with a success message
@@ -116,7 +188,7 @@ class LeadsSettingController extends Controller
         LeadAgent::create([
             'userid' => $userId,
             'username' => $user->name,
-            'is_deleted' => 0,
+            
         ]);
 
         // Redirect back with a success message
@@ -137,7 +209,7 @@ class LeadsSettingController extends Controller
         ]);
 
         // Redirect back with a success message
-        return redirect()->back()->with('success', 'Lead Source added successfully!');
+        return redirect()->back()->with('success', 'Lead Category added successfully!');
 
     }
 
@@ -182,7 +254,6 @@ class LeadsSettingController extends Controller
         $leadSource = LeadSource::findOrFail($id);
         $leadSource->name = $request->input('name');
         $leadSource->save();
-       
 
         // Redirect back with a success message
         return redirect()->back()->with('success', 'Lead Source updated successfully!');
@@ -195,17 +266,33 @@ class LeadsSettingController extends Controller
         // Validate the request
         $request->validate([
             'name' => 'required|string|max:255',
+            'color' => 'required|string|max:255',
         ]);
 
         // Find the lead source and update its name
         $leadStatus = LeadStatus::findOrFail($id);
         $leadStatus->name = $request->input('name');
+        $leadStatus->color = $request->input('color');
         $leadStatus->save();
-       
 
         // Redirect back with a success message
         return redirect()->back()->with('success', 'Lead Status updated successfully!');
 
+    }
+
+    public function updateDefaultStatus(Request $request)
+    {
+        $id = $request->input('id');
+
+        // Set all statuses to not default
+        LeadStatus::query()->update(['is_default' => 0]);
+
+        // Set the selected status as default
+        $leadStatus = LeadStatus::findOrFail($id);
+        $leadStatus->is_default = 1;
+        $leadStatus->save();
+
+        return response()->json(['success' => true]);
     }
 
     public function leadcategory_update(Request $request, $id) // lead source update
@@ -219,7 +306,6 @@ class LeadsSettingController extends Controller
         // Find the lead source and update its name
         $leadCategory = LeadCategory::findOrFail($id);
         $leadCategory->update($request->all());
-        
 
         // Redirect back with a success message
         return redirect()->back()->with('success', 'Lead Category updated successfully!');
@@ -263,7 +349,6 @@ class LeadsSettingController extends Controller
         // Find the lead agent by ID
         $leadAgent = LeadAgent::findOrFail($id);
         $leadAgent->delete();
-
 
         // Redirect back with a success message
         return redirect()->back()->with('success', 'Lead Agent deleted successfully!');

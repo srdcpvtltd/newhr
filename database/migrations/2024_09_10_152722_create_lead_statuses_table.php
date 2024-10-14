@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('lead_statuses', function (Blueprint $table) {
             $table->id();
             $table->string('status_name');
-            $table->string('lead_status');
+            $table->boolean('is_default')->default(0);
             $table->timestamps();
         });
     }

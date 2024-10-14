@@ -52,7 +52,7 @@ class ProcurementController extends Controller
             $select = ['*'];
             $with = ['users', 'asset_types', 'brands'];
             $assetType = $this->assetTypeService->getAllAssetTypes(['id', 'name']);
-            // $brands = $this->brandRepo->getBrandlist(['id', 'name']);
+            $brands = $this->brandRepo->getBrandlist(['id', 'name']);
             $requests = $this->procurementRepo->getAllRequests($filterParameters, $select, $with);
 
 
@@ -62,7 +62,7 @@ class ProcurementController extends Controller
             }
             // dd($request->all());
 
-            return view($this->view . 'index', compact('requests', 'assetType', 'filterParameters'));
+            return view($this->view . 'index', compact('requests', 'assetType', 'filterParameters', 'brands'));
         } catch (\Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }
@@ -103,10 +103,11 @@ class ProcurementController extends Controller
         try {
             $employeeSelect = ['id', 'name'];
             $typeSelect = ['id', 'name'];
+            $brands = $this->brandRepo->getBrandlist(['id', 'name']);
             $assetType = $this->assetTypeService->getAllActiveAssetTypes($typeSelect);
             $employees = $this->userRepo->getAllVerifiedEmployeeOfCompany($employeeSelect);
             $procurementDetail = $this->procurementService->findProcurementById($id);
-            return view($this->view . 'edit', compact('procurementDetail', 'assetType', 'employees'));
+            return view($this->view . 'edit', compact('procurementDetail', 'assetType', 'employees', 'brands'));
         } catch (Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }

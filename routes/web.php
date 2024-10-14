@@ -1,14 +1,16 @@
 <?php
 
+use App\Exports\LeadEnqueryExport;
 use App\Http\Controllers\Auth\AdminAuthController;
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Web\BrandsController;
+use App\Http\Controllers\Web\AdvanceSalaryController;
 use App\Http\Controllers\Web\AppSettingController;
+use App\Http\Controllers\Web\AssetAssignmentController;
 use App\Http\Controllers\Web\AssetController;
 use App\Http\Controllers\Web\AssetTypeController;
 use App\Http\Controllers\Web\AttachmentController;
 use App\Http\Controllers\Web\AttendanceController;
 use App\Http\Controllers\Web\BranchController;
+use App\Http\Controllers\Web\BrandsController;
 use App\Http\Controllers\Web\ClientController;
 use App\Http\Controllers\Web\CompanyController;
 use App\Http\Controllers\Web\DashboardController;
@@ -17,8 +19,12 @@ use App\Http\Controllers\Web\DepartmentController;
 use App\Http\Controllers\Web\EmployeeLogOutRequestController;
 use App\Http\Controllers\Web\EmployeeSalaryController;
 use App\Http\Controllers\Web\FeatureController;
+use App\Http\Controllers\Web\FollowUpController;
+use App\Http\Controllers\Web\FollowUpSettingController;
 use App\Http\Controllers\Web\GeneralSettingController;
 use App\Http\Controllers\Web\HolidayController;
+use App\Http\Controllers\Web\LeadEnquiriesController;
+use App\Http\Controllers\Web\LeadsSettingController;
 use App\Http\Controllers\Web\LeaveController;
 use App\Http\Controllers\Web\LeaveTypeController;
 use App\Http\Controllers\Web\NFCController;
@@ -30,17 +36,12 @@ use App\Http\Controllers\Web\PaymentCurrencyController;
 use App\Http\Controllers\Web\PaymentMethodController;
 use App\Http\Controllers\Web\PostController;
 use App\Http\Controllers\Web\PrivacyPolicyController;
+use App\Http\Controllers\Web\ProcurementController;
 use App\Http\Controllers\Web\ProjectController;
 use App\Http\Controllers\Web\QrCodeController;
+use App\Http\Controllers\Web\RegularizationController;
 use App\Http\Controllers\Web\RoleController;
 use App\Http\Controllers\Web\RouterController;
-use App\Http\Controllers\Web\AdvanceSalaryController;
-use App\Http\Controllers\Web\AssetAssignmentController;
-use App\Http\Controllers\Web\CrmEnqueriesController;
-use App\Http\Controllers\Web\LeadSourceController;
-use App\Http\Controllers\Web\LeadsSettingController;
-use App\Http\Controllers\Web\ProcurementController;
-use App\Http\Controllers\Web\RegularizationController;
 use App\Http\Controllers\Web\SalaryComponentController;
 use App\Http\Controllers\Web\SalaryGroupController;
 use App\Http\Controllers\Web\SalaryHistoryController;
@@ -56,30 +57,32 @@ use App\Http\Controllers\Web\TeamMeetingController;
 use App\Http\Controllers\Web\TimeLeaveController;
 use App\Http\Controllers\Web\UnderTimeSettingController;
 use App\Http\Controllers\Web\UserController;
+use App\Http\Controllers\Web\VendorController;
 use App\Http\Controllers\Web\VendorRegisterController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Maatwebsite\Excel\Facades\Excel;
 
 Auth::routes([
     'register' => false,
     'login' => false,
-    'logout' => false
+    'logout' => false,
 ]);
 
 Route::get('/', function () {
     return redirect()->route('admin.login');
 });
 
-
 /** Crm Enquery route */
-// Route::get('/crmenquery', function () {
-//     return redirect()->route('crmenquery.create');
-// });
-Route::get('/crmenquery',[CrmEnqueriesController::class, 'index'])->name('crmenquery.index');
-// Route::get('crmenquery/create',[CrmEnqueriesController::class, 'create'])->name('crmenquery.create');
-Route::post('crmenquery',[CrmEnqueriesController::class, 'store'])->name('crmenquery.store');
 
+Route::get('/leadsenquiries', [LeadEnquiriesController::class, 'index'])->name('leadsenquiries.index');
 
+Route::post('leadsenquiries', [LeadEnquiriesController::class, 'store'])->name('leadsenquiries.store');
+
+// Lead Form
+Route::get('/leadform', function () {
+    return view('leadform.index');
+});
 
 /** app privacy policy route */
 Route::get('privacy', [PrivacyPolicyController::class, 'index'])->name('privacy-policy');
@@ -90,7 +93,7 @@ Route::post('vendor/create', [VendorRegisterController::class, 'store'])->name('
 Route::group([
     'prefix' => 'admin',
     'as' => 'admin.',
-    'middleware' => ['web']
+    'middleware' => ['web'],
 ], function () {
     Route::get('login', [AdminAuthController::class, 'showAdminLoginForm'])->name('login');
     Route::post('login', [AdminAuthController::class, 'login'])->name('login.process');
@@ -122,13 +125,11 @@ Route::group([
         Route::get('branch/toggle-status/{id}', [BranchController::class, 'toggleStatus'])->name('branch.toggle-status');
         Route::get('branch/delete/{id}', [BranchController::class, 'delete'])->name('branch.delete');
 
-
         /** Department route */
         Route::resource('departments', DepartmentController::class);
         Route::get('departments/toggle-status/{id}', [DepartmentController::class, 'toggleStatus'])->name('departments.toggle-status');
         Route::get('departments/delete/{id}', [DepartmentController::class, 'delete'])->name('departments.delete');
         Route::get('departments/get-All-Departments/{branchId}', [DepartmentController::class, 'getAllDepartmentsByBranchId'])->name('departments.getAllDepartmentsByBranchId');
-
 
         /** post route */
         Route::resource('posts', PostController::class);
@@ -222,7 +223,6 @@ Route::group([
         Route::get('employees/time-leave-request/create', [TimeLeaveController::class, 'createLeaveRequest'])->name('time-leave-request.create');
         Route::post('employees/time-leave-request/store', [TimeLeaveController::class, 'storeLeaveRequest'])->name('time-leave-request.store');
 
-
         /**logout request Routes */
         Route::get('employee/logout-requests', [EmployeeLogOutRequestController::class, 'getAllCompanyEmployeeLogOutRequest'])->name('logout-requests.index');
         Route::get('employee/logout-requests/toggle-status/{employeeId}', [EmployeeLogOutRequestController::class, 'acceptLogoutRequest'])->name('logout-requests.accept');
@@ -244,39 +244,90 @@ Route::group([
         Route::get('clients/delete/{id}', [ClientController::class, 'delete'])->name('clients.delete');
         Route::get('clients/toggle-status/{id}', [ClientController::class, 'toggleIsActiveStatus'])->name('clients.toggle-status');
 
-          /** crmenquery route */
-        // Route::resource('crmenquery', CrmEnqueriesController::class);
-        Route::get('/crmenquery',[CrmEnqueriesController::class, 'list'])->name('crmenquery.index');
-        Route::get('/crmenquery/{id}/edit',[CrmEnqueriesController::class, 'edit_crm'])->name('crmenquery.edit');
-        Route::put('crmenquery/{id}',[CrmEnqueriesController::class, 'update'])->name('crmenquery.update');
-        Route::get('crmenquery/get-users-by-department/{departmentId}', [CrmEnqueriesController::class,'getUsersByDepartment'])->name('crmenquery.getUsersByDepartment');
-        // Route::get('crmenquery/{id}',[CrmEnqueriesController::class, 'show'])->name('admin.crmenquery.show');
-        Route::get('crmenquery/crm-enqueries/{id}', [CrmEnqueriesController::class,'show'])->name('crmenquery.show');
+        /** leadsenquiries route */
+        // Route::resource('leadsenquiries', CrmEnqueriesController::class);
+        Route::get('/leadsenquiries', [LeadEnquiriesController::class, 'list'])->name('leadsenquiries.index');
+        Route::get('/leadsenquiries/{id}/edit', [LeadEnquiriesController::class, 'edit_crm'])->name('leadsenquiries.edit');
+        Route::put('leadsenquiries/{id}', [LeadEnquiriesController::class, 'update'])->name('leadsenquiries.update');
+        Route::get('leadsenquiries/get-users-by-department/{departmentId}', [LeadEnquiriesController::class, 'getUsersByDepartment'])->name('leadsenquiries.getUsersByDepartment');
+        // Route::get('leadsenquiries/{id}',[LeadEnquiriesController::class, 'show'])->name('admin.leadsenquiries.show');
+        Route::get('leadsenquiries/lead-enquiries/{id}', [LeadEnquiriesController::class, 'show'])->name('leadsenquiries.show');
+        Route::put('leadsenquiries/lead-enquiries-delete/{id}', [LeadEnquiriesController::class, 'destroy'])->name('leadsenquiries.destroy');
+        // from Dropdown
+        Route::post('leadsenquiries/update-status', [LeadEnquiriesController::class, 'updateStatus'])->name('leadsenquiries.updateStatus');
+        Route::post('leadsenquiries/update-agents', [LeadEnquiriesController::class, 'updateAgents'])->name('leadsenquiries.updateAgents');
+        // from checkbox
+        Route::get('leadsenquiries/get-lead-statuses', [LeadEnquiriesController::class, 'getLeadStatuses'])->name('leadsenquiries.getLeadStatuses');
+        Route::post('leadsenquiries/update-lead-status', [LeadEnquiriesController::class, 'updateLeadStatus'])->name('leadsenquiries.updateLeadStatus');
 
-          /** Leads Source setting */
-        Route::get('/leads-setting',[LeadsSettingController::class, 'index'])->name('leadsSetting.index');
+        Route::get('leadsenquiries/get-lead-agents', [LeadEnquiriesController::class, 'getLeadAgents'])->name('leadsenquiries.getLeadAgents');
+        Route::post('leadsenquiries/update-lead-agent', [LeadEnquiriesController::class, 'updateLeadAgent'])->name('leadsenquiries.updateLeadAgent');
+
+        // Store Lead Enquery Through ADD Lead Modal
+        Route::post('leadsenquiries/addleadstore', [LeadEnquiriesController::class, 'addleadstore'])->name('leadsenquiries.addleadstore');
+
+        // Lead Enquery Export and Import option
+        Route::get('leadsenquiries/export-leadenquery', function () {
+            return Excel::download(new LeadEnqueryExport, 'LeadEnquery.xlsx');
+        });
+        Route::post('leadsenquiries/import-leadenquery', [LeadEnquiriesController::class, 'import'])->name('leadsenquiries.import');
+
+        // from Swalfire after assign Agents
+        Route::post('leadsenquiries/update-lagents', [LeadEnquiriesController::class, 'updateLAgents'])->name('leadsenquiries.update-lagents');
+        Route::post('leadsenquiries/update-lstatus', [LeadEnquiriesController::class, 'updateLStatus'])->name('leadsenquiries.update-lstatus');
+
+        Route::post('leadsenquiries/delete-leads', [LeadEnquiriesController::class, 'deleteLeads'])->name('leadsenquiries.deleteLeads');
+
+        // Dashboard Follow up in swal fire 
+        Route::get('dashboard/followups', [DashboardController::class, 'showFollowUps']);
+
+        // Follow Up Routes which is under the part of Lead Enquiry
+        Route::post('leadsenquiries/addfollowup/store', [LeadEnquiriesController::class, 'addfollowup_store'])->name('addfollowup.store');
+
+        // Lead Setting
+        Route::post('leads-setting/leadsetting/setting', [LeadsSettingController::class, 'setting'])->name('leadsetting.setting');
+        Route::post('leads-setting/leadsetting/setting/customizeleadform', [LeadsSettingController::class, 'setting2'])->name('leadsetting.setting2');
+        Route::post('leads-setting/update-lead-form', [LeadsSettingController::class, 'displayfield'])->name('leadsetting.displayfield');
+
+        // THis is for Follow Up view as a modal
+        Route::get('followuplist/followup/{id}', [FollowUpController::class, 'getFollowUpRemark'])->name('followuplist.remark');
+
+        // Follow Up List followup.list
+        Route::get('followuplist', [FollowUpController::class, 'index'])->name('followuplist.list');
+        Route::put('followuplist/update/{id}', [FollowUpController::class, 'update'])->name('followuplist.update');
+        Route::put('followuplist/follow-up-delete/{id}', [FollowUpController::class, 'followup_destroy'])->name('followuplist.destroy');
+
+
+        // Follow Up Setting
+        Route::get('followup-setting', [FollowUpSettingController::class, 'index'])->name('followupSetting.index');
+        Route::post('followup-setting/store', [FollowUpSettingController::class, 'store'])->name('followupSetting.store');
+
+        /** Leads Source setting */
+        Route::get('leads-setting', [LeadsSettingController::class, 'index'])->name('leadsSetting.index');
         Route::post('leads-setting/leadsource/store', [LeadsSettingController::class, 'store'])->name('leadsource.store');
-        Route::put('/leads-setting/leadsource/update/{id}', [LeadsSettingController::class, 'update'])->name('leadsource.update');
+        Route::put('leads-setting/leadsource/update/{id}', [LeadsSettingController::class, 'update'])->name('leadsource.update');
         Route::put('leads-setting/lead-source-delete/{id}', [LeadsSettingController::class, 'destroy'])->name('leadsource.destroy');
 
         /** Leads Status setting */
         Route::post('leads-setting/leadstatus/store', [LeadsSettingController::class, 'leadstatus_store'])->name('leadstatus.store');
-        
+
         Route::put('leads-setting/leadstatus/update/{id}', [LeadsSettingController::class, 'leadstatus_update'])->name('leadstatus.update');
 
         Route::put('leads-setting/lead-status-delete/{id}', [LeadsSettingController::class, 'leadstatus_destroy'])->name('leadstatus.destroy');
-        
+
+        Route::post('leads-setting/update-default-status', [LeadsSettingController::class, 'updateDefaultStatus'])->name('leads-setting.update-default-status');
+
         /** Leads Agent setting */
-        Route::get('leads-setting/leadagent/create', [LeadsSettingController::class,'leadagent_create'])->name('admin.leadagent.create');
+        Route::get('leads-setting/leadagent/create', [LeadsSettingController::class, 'leadagent_create'])->name('admin.leadagent.create');
         Route::post('leads-setting/leadagent/store', [LeadsSettingController::class, 'leadagent_store'])->name('leadagent.store');
         Route::put('leads-setting/lead-agent-delete/{id}', [LeadsSettingController::class, 'leadAgentDelete'])->name('leadagent.delete');
 
-         /** Leads Category setting */
-         Route::post('leads-setting/leadcategory/store', [LeadsSettingController::class, 'leadcategory_store'])->name('leadcategory.store');
-         Route::put('leads-setting/leadcategory/update/{id}', [LeadsSettingController::class, 'leadcategory_update'])->name('leadcategory.update');
+        /** Leads Category setting */
+        Route::post('leads-setting/leadcategory/store', [LeadsSettingController::class, 'leadcategory_store'])->name('leadcategory.store');
+        Route::put('leads-setting/leadcategory/update/{id}', [LeadsSettingController::class, 'leadcategory_update'])->name('leadcategory.update');
 
-         Route::put('leads-setting/lead-category-delete/{id}', [LeadsSettingController::class, 'leadcategory_destroy'])->name('leadcategory.destroy');
-        
+        Route::put('leads-setting/lead-category-delete/{id}', [LeadsSettingController::class, 'leadcategory_destroy'])->name('leadcategory.destroy');
+
         /** Project Management route */
         Route::resource('projects', ProjectController::class);
         Route::get('projects/delete/{id}', [ProjectController::class, 'delete'])->name('projects.delete');
@@ -292,7 +343,6 @@ Route::group([
         Route::get('tasks/attachment/create/{taskId}', [AttachmentController::class, 'createTaskAttachment'])->name('task-attachment.create');
         Route::post('tasks/attachment/store', [AttachmentController::class, 'storeTaskAttachment'])->name('task-attachment.store');
         Route::get('attachment/delete/{id}', [AttachmentController::class, 'deleteAttachmentById'])->name('attachment.delete');
-
 
         /** Task Management route */
         Route::resource('tasks', TaskController::class);
@@ -337,22 +387,22 @@ Route::group([
 
         /** Asset Management route */
         Route::resource('asset-types', AssetTypeController::class, [
-            'except' => ['destroy']
+            'except' => ['destroy'],
         ]);
         Route::get('asset-types/delete/{id}', [AssetTypeController::class, 'delete'])->name('asset-types.delete');
         Route::get('asset-types/toggle-status/{id}', [AssetTypeController::class, 'toggleIsActiveStatus'])->name('asset-types.toggle-status');
 
         Route::resource('assets', AssetController::class, [
-            'except' => ['destroy']
+            'except' => ['destroy'],
         ]);
         Route::resource('asset_assignment', AssetAssignmentController::class, [
-            'except' => ['destroy']
+            'except' => ['destroy'],
         ]);
         Route::get('assets/delete/{id}', [AssetController::class, 'delete'])->name('assets.delete');
         Route::get('assets/toggle-status/{id}', [AssetController::class, 'changeAvailabilityStatus'])->name('assets.change-Availability-status');
 
         Route::resource('asset_assignment', AssetAssignmentController::class, [
-            'except' => ['destroy']
+            'except' => ['destroy'],
         ]);
         Route::get('/download-pdf', [AssetAssignmentController::class, 'downloadAssignmentPDF'])->name('download.pdf');
         Route::get('/download-return-pdf', [AssetAssignmentController::class, 'downloadReturnPDF'])->name('download.return.pdf');
@@ -362,27 +412,27 @@ Route::group([
 
         // Procuremnets
         Route::resource('brands', BrandsController::class, [
-            'except' => ['destroy']
+            'except' => ['destroy'],
         ]);
         Route::get('brands/delete/{id}', [BrandsController::class, 'delete'])->name('brands.delete');
         Route::get('brands/toggle-status/{id}', [BrandsController::class, 'toggleIsActiveStatus'])->name('brands.toggle-status');
 
         // Procuremnets
         Route::resource('procurement', ProcurementController::class, [
-            'except' => ['destroy']
+            'except' => ['destroy'],
         ]);
         Route::get('procurement/delete/{id}', [ProcurementController::class, 'delete'])->name('procurement.delete');
 
         /** Salary Component route */
         Route::resource('salary-components', SalaryComponentController::class, [
-            'except' => ['destroy', 'show']
+            'except' => ['destroy', 'show'],
         ]);
         Route::get('salary-components/delete/{id}', [SalaryComponentController::class, 'delete'])->name('salary-components.delete');
         Route::get('salary-components/change-status/{id}', [SalaryComponentController::class, 'toggleSalaryComponentStatus'])->name('salary-components.toggle-status');
 
         /** Payment Methods route */
         Route::resource('payment-methods', PaymentMethodController::class, [
-            'except' => ['destroy', 'show', 'edit']
+            'except' => ['destroy', 'show', 'edit'],
         ]);
         Route::get('payment-methods/delete/{id}', [PaymentMethodController::class, 'deletePaymentMethod'])->name('payment-methods.delete');
         Route::get('payment-methods/change-status/{id}', [PaymentMethodController::class, 'togglePaymentMethodStatus'])->name('payment-methods.toggle-status');
@@ -393,21 +443,21 @@ Route::group([
 
         /** Salary TDS route */
         Route::resource('salary-tds', SalaryTDSController::class, [
-            'except' => ['destroy', 'show']
+            'except' => ['destroy', 'show'],
         ]);
         Route::get('salary-tds/delete/{id}', [SalaryTDSController::class, 'deleteSalaryTDS'])->name('salary-tds.delete');
         Route::get('salary-tds/change-status/{id}', [SalaryTDSController::class, 'toggleSalaryTDSStatus'])->name('salary-tds.toggle-status');
 
         /** Salary Group route */
         Route::resource('salary-groups', SalaryGroupController::class, [
-            'except' => ['destroy', 'show']
+            'except' => ['destroy', 'show'],
         ]);
         Route::get('salary-groups/delete/{id}', [SalaryGroupController::class, 'deleteSalaryGroup'])->name('salary-groups.delete');
         Route::get('salary-groups/change-status/{id}', [SalaryGroupController::class, 'toggleSalaryGroupStatus'])->name('salary-groups.toggle-status');
 
         /** Employee Salary route */
         Route::resource('employee-salaries', EmployeeSalaryController::class, [
-            'except' => ['destroy', 'create', 'edit', 'update', 'store', 'show']
+            'except' => ['destroy', 'create', 'edit', 'update', 'store', 'show'],
         ]);
         Route::get('employee-salaries/update-cycle/{employeeId}/{cycle}', [EmployeeSalaryController::class, 'changeSalaryCycle'])->name('employee-salaries.update-salary-cycle');
         Route::post('employee-salaries/payroll-create', [EmployeeSalaryController::class, 'payrollCreate'])->name('employee-salaries.payroll-create');
@@ -429,7 +479,6 @@ Route::group([
         /** get weeks list */
         Route::get('employee-salaries/getWeeks/{year}', [EmployeeSalaryController::class, 'getWeeks'])->name('employee-salaries.get-weeks');
 
-
         /** Employee Salary History route */
         Route::get('employee-salaries/salary-update/{accountId}', [SalaryHistoryController::class, 'create'])->name('employee-salaries.increase-salary');
         Route::post('employee-salaries/salary-history/store', [SalaryHistoryController::class, 'store'])->name('employee-salaries.updated-salary-store');
@@ -439,31 +488,27 @@ Route::group([
 
         /** Advance Salary route */
         Route::resource('advance-salaries', AdvanceSalaryController::class, [
-            'except' => ['destroy', 'store', 'edit']
+            'except' => ['destroy', 'store', 'edit'],
         ]);
         Route::get('advance-salaries/delete/{id}', [AdvanceSalaryController::class, 'delete'])->name('advance-salaries.delete');
-
-
 
         /** Payroll OverTime Setting route */
 
         Route::resource('overtime', OverTimeSettingController::class, [
-            'except' => ['destroy']
+            'except' => ['destroy'],
         ]);
         Route::get('overtime/delete/{id}', [OverTimeSettingController::class, 'delete'])->name('overtime.delete');
         Route::get('overtime/change-status/{id}', [OverTimeSettingController::class, 'toggleOTStatus'])->name('overtime.toggle-status');
 
-
         /** Payroll UnderTime Setting route */
         Route::resource('under-time', UnderTimeSettingController::class, [
-            'except' => ['destroy']
+            'except' => ['destroy'],
         ]);
         Route::get('under-time/delete/{id}', [UnderTimeSettingController::class, 'delete'])->name('under-time.delete');
         Route::get('under-time/change-status/{id}', [UnderTimeSettingController::class, 'toggleUTStatus'])->name('under-time.toggle-status');
 
-
         Route::resource('qr', QrCodeController::class, [
-            'except' => ['destroy', 'show']
+            'except' => ['destroy', 'show'],
         ]);
         Route::get('qr/delete/{id}', [QrCodeController::class, 'delete'])->name('qr.destroy');
         Route::get('qr/print/{id}', [QrCodeController::class, 'print'])->name('qr.print');

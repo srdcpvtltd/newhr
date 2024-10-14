@@ -12,8 +12,9 @@ class LeadStatus extends Model
     protected $table = 'lead_statuses';
 
     protected $fillable = [
+        'color',
         'name',
-        'lead_status',
+        'is_default',
         'is_deleted',
         'created_at',
         'updated_at'

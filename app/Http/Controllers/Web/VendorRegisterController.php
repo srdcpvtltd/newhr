@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Exports\AssetListExport;
 use App\Http\Controllers\Controller;
 use App\Repositories\BrandRepository;
 use App\Repositories\UserRepository;
 use App\Services\AssetManagement\AssetService;
 use App\Services\AssetManagement\AssetTypeService;
 use App\Services\Vendors\VendorService;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 
 class VendorRegisterController extends Controller
 {

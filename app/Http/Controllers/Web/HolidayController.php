@@ -36,12 +36,12 @@ class HolidayController extends Controller
         try {
             // new code
             // Get the user's branch_id
-        $userBranchId = auth()->user()->branch_id;
-        // end code
+            $userBranchId = auth()->user()->branch_id;
+            // end code
             $filterParameters['event_year'] = $request->event_year ?? Carbon::now()->format('Y');
             $filterParameters['event'] = $request->event ?? null;
             $filterParameters['month'] = $request->month ?? null;
-            // new Code 
+            // new Code
             $filterParameters['branch_id'] = $userBranchId;
             // end new code
             if (AppHelper::ifDateInBsEnabled()) {
@@ -59,7 +59,7 @@ class HolidayController extends Controller
         }
     }
 
-    public function create(): Factory|View|RedirectResponse|Application
+    public function create(): Factory | View | RedirectResponse | Application
     {
         $this->authorize('create_holiday');
         try {
@@ -75,7 +75,7 @@ class HolidayController extends Controller
         $this->authorize('create_holiday');
         try {
             $validatedData = $request->validated();
-            $validatedData['branch_id'] = $request->input('branch_id'); 
+            $validatedData['branch_id'] = $request->input('branch_id');
             DB::beginTransaction();
             $this->holidayService->store($validatedData);
             DB::commit();
@@ -108,7 +108,7 @@ class HolidayController extends Controller
         }
     }
 
-    public function edit($id): Factory|View|RedirectResponse|Application
+    public function edit($id): Factory | View | RedirectResponse | Application
     {
         $this->authorize('edit_holiday');
         try {
@@ -117,7 +117,7 @@ class HolidayController extends Controller
             if (AppHelper::ifDateInBsEnabled()) {
                 $holidayDetail['event_date'] = AppHelper::dateInYmdFormatEngToNep($holidayDetail['event_date']);
             }
-            return view($this->view . 'edit', compact('holidayDetail','branches'));
+            return view($this->view . 'edit', compact('holidayDetail', 'branches'));
         } catch (Exception $exception) {
             return redirect()->back()->with('danger', $exception->getMessage());
         }
@@ -158,7 +158,7 @@ class HolidayController extends Controller
         }
     }
 
-    public function holidayImport(): Factory|View|Application
+    public function holidayImport(): Factory | View | Application
     {
         $this->authorize('import_holiday');
         return view($this->view . 'importHolidays');
@@ -169,7 +169,7 @@ class HolidayController extends Controller
         $this->authorize('import_holiday');
         try {
             $validate = $request->validate([
-                'file' => 'required|file|mimes:csv,txt'
+                'file' => 'required|file|mimes:csv,txt',
             ]);
             $holidayCSV = $request->file;
             $handle = fopen($holidayCSV, "r");

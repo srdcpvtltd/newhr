@@ -11,9 +11,21 @@
                 <form id="leadStatusForm" method="POST" action="{{ route('admin.leadstatus.store') }}">
                     @csrf
                     <div class="mb-3">
-                        <label for="leadStatusName" class="form-label">Lead Source Name</label>
+                        <label for="leadStatusName" class="form-label">Lead Source Name <span
+                                style="color: red;">*</span></label>
                         <input type="text" class="form-control" id="leadStatusName" name="name"
                             placeholder="Enter Lead Status Name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="leadStatusColor" class="form-label">Label Color <span
+                                style="color: red;">*</span></label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="labelColor" name="color" value="#E82E5F"
+                                required>
+                            <div class="lead-status-color-picker">
+                                <input type="color" id="colorPicker" value="#E82E5F">
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -44,6 +56,19 @@
                         <input type="text" class="form-control" id="editLeadStatusName" name="name"
                             placeholder="Enter Lead Status Name" required>
                     </div>
+                    {{-- color pick  --}}
+                    <div class="mb-3">
+                        <label for="editLabelColor" class="form-label">Label Color <span
+                                style="color: red;">*</span></label>
+                        <div class="input-group">
+                            <input type="text" class="form-control labelStatusColor" id="editLabelColor"
+                                name="color" placeholder="Pick Color" required>
+                            <div class="lead-status-color-picker">
+                                <input type="color" class="form-control-color" id="editColorPicker">
+                            </div>
+                        </div>
+                    </div>
+                    {{-- end color pick  --}}
                 </form>
             </div>
             <div class="modal-footer">

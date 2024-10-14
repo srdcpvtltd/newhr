@@ -1,22 +1,22 @@
 @extends('layouts.master')
 
-@section('title','Digital HR Dashboard')
+@section('title', 'Digital HR Dashboard')
 
 <?php
-    $attendanceDetail = (\App\Helpers\AppHelper::employeeTodayAttendanceDetail());
-    $checkInAt = $attendanceDetail['check_in_at'] ?? '';
-    $checkOutAt = $attendanceDetail['check_out_at'] ?? '';
-    $attendanceDate = $attendanceDetail['attendance_date'] ?? '';
-    $viewCheckIn = $checkInAt ? \App\Helpers\AttendanceHelper::changeTimeFormatForAttendanceAdminView($appTimeSetting,$checkInAt) : '-:-:-';
-    $viewCheckOut = $checkOutAt ? \App\Helpers\AttendanceHelper::changeTimeFormatForAttendanceAdminView($appTimeSetting, $checkOutAt) : '-:-:-';
+$attendanceDetail = \App\Helpers\AppHelper::employeeTodayAttendanceDetail();
+$checkInAt = $attendanceDetail['check_in_at'] ?? '';
+$checkOutAt = $attendanceDetail['check_out_at'] ?? '';
+$attendanceDate = $attendanceDetail['attendance_date'] ?? '';
+$viewCheckIn = $checkInAt ? \App\Helpers\AttendanceHelper::changeTimeFormatForAttendanceAdminView($appTimeSetting, $checkInAt) : '-:-:-';
+$viewCheckOut = $checkOutAt ? \App\Helpers\AttendanceHelper::changeTimeFormatForAttendanceAdminView($appTimeSetting, $checkOutAt) : '-:-:-';
 ?>
 
-@section('nav-head','Welcome to Attendance Dashboard : ' .ucfirst($dashboardDetail?->company_name) )
+@section('nav-head', 'Welcome to Attendance Dashboard : ' . ucfirst($dashboardDetail?->company_name))
 
 @section('styles')
     <style>
         #clockContainer {
-            background: url({{asset('assets/images/clock.jpg') }}) no-repeat;
+            background: url({{ asset('assets/images/clock.jpg') }}) no-repeat;
             background-size: 100%;
         }
     </style>
@@ -25,13 +25,82 @@
 @section('main-content')
 
     <section class="content">
+
+        @if ($isAdmin)
+            <div class="container text-center" id="followup-hide">
+                <div class="align-items-center">
+                    <div class="col-md-8 col-sm-6 container followup-alert text-center followup-container">
+                        <!-- Single marquee to show all follow-ups -->
+                        <marquee behavior="scroll" direction="left" onMouseOver="this.stop()" onMouseOut="this.start()">
+                            @if ($followup->isEmpty())
+                                <strong>There are no Follow Up here, You can hide this Section ...</strong>
+                            @else
+                                @foreach ($followup as $item)
+                                    <strong>Follow-Up Date:</strong> {{ $item->followupdate }} &nbsp;&nbsp;
+                                    <strong>Time:</strong> {{ $item->followuptime }} &nbsp;&nbsp;
+                                    <strong>Lead Name:</strong> {{ $item->leadEnquery->name ?? 'Lead Name Not Fetch' }}
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                @endforeach
+                            @endif
+                        </marquee>
+
+                        <!-- Button to view all follow-ups -->
+                        @if ($followup->isEmpty())
+                            <div class="col-md-2 col-sm-6 text-center">
+                                <button type="button" class="btn btn-primary btn-sm remind-me-tomorrow">
+                                    Hide This Section
+                                </button>
+                            </div>
+                        @else
+                            <div class="col-md-4 col-sm-6 text-center">
+                                <button type="button" class="btn btn-primary btn-sm remind-me-tomorrow">
+                                    Remind Me Tomorrow
+                                </button>
+                                <a href="{{ route('admin.followuplist.list') }}"
+                                    style="color: white; text-decoration: none;">
+                                    <button type="button" class="btn btn-primary btn-sm">
+                                        View All Followups
+                                    </button>
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @else
+            <div class="container text-center" id="followup-hide">
+                <div class="align-items-center">
+                    <div class="col-md-10 col-sm-6 container followup-alert text-center followup-container">
+                        <!-- Single marquee to show all follow-ups -->
+                        <marquee behavior="scroll" direction="left" onMouseOver="this.stop()" onMouseOut="this.start()">
+                            @foreach ($followup as $item)
+                                <strong>Follow-Up Date:</strong> {{ $item->followupdate }} &nbsp;&nbsp;
+                                <strong>Time:</strong> {{ $item->followuptime }} &nbsp;&nbsp;
+                                <strong>Lead Name:</strong> {{ $item->leadEnquery->name ?? 'Lead Name Not Fetch' }}
+                                &nbsp;&nbsp;&nbsp;&nbsp;
+                            @endforeach
+                        </marquee>
+
+                        <!-- Button to view all follow-ups -->
+                        <div class="col-md-2 col-sm-6 text-center">
+                            <button type="button" class="btn btn-primary btn-sm remind-me-tomorrow">
+                                Remind Me Tomorrow
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <br>
+
         <?php
-            $projectPriority = [
-                'low' => 'info',
-                'medium' => 'warning',
-                'high' => 'primary',
-                'urgent' => 'primary'
-            ];
+        $projectPriority = [
+            'low' => 'info',
+            'medium' => 'warning',
+            'high' => 'primary',
+            'urgent' => 'primary',
+        ];
         ?>
 
         <div id="flashAttendanceMessage" class="d-none">
@@ -70,7 +139,7 @@
 
                                 <div class="row align-items-center d-md-flex">
                                     <div class="col-lg-6 col-md-6">
-                                        <h3>{{number_format($dashboardDetail?->total_employee)}}</h3>
+                                        <h3>{{ number_format($dashboardDetail?->total_employee) }}</h3>
                                     </div>
                                     <div class="col-lg-6 col-md-6 text-md-end dash-icon mt-md-0 mt-2">
                                         <i class="link-icon" data-feather="users"> </i>
@@ -88,7 +157,7 @@
                                 </div>
                                 <div class="row align-items-center d-md-flex">
                                     <div class="col-lg-6 col-md-6">
-                                        <h3>{{number_format($dashboardDetail?->total_departments)}}</h3>
+                                        <h3>{{ number_format($dashboardDetail?->total_departments) }}</h3>
                                     </div>
                                     <div class="col-lg-6 col-md-6 text-md-end dash-icon mt-md-0 mt-2">
                                         <i class="link-icon" data-feather="layers"> </i>
@@ -106,7 +175,7 @@
                                 </div>
                                 <div class="row align-items-center d-md-flex">
                                     <div class="col-lg-6 col-md-6">
-                                        <h3>{{number_format($dashboardDetail?->total_holidays) ?? 0}}</h3>
+                                        <h3>{{ number_format($dashboardDetail?->total_holidays) ?? 0 }}</h3>
                                     </div>
                                     <div class="col-lg-6 col-md-6 text-md-end dash-icon mt-md-0 mt-2">
                                         <i class="link-icon" data-feather="umbrella"> </i>
@@ -124,7 +193,7 @@
                                 </div>
                                 <div class="row align-items-center d-md-flex">
                                     <div class="col-lg-6 col-md-6">
-                                        <h3>{{number_format($dashboardDetail?->total_paid_leaves) ?? 0}}</h3>
+                                        <h3>{{ number_format($dashboardDetail?->total_paid_leaves) ?? 0 }}</h3>
                                     </div>
                                     <div class="col-lg-6 col-md-6 text-md-end dash-icon mt-md-0 mt-2">
                                         <i class="link-icon" data-feather="file-text"> </i>
@@ -142,7 +211,7 @@
                                 </div>
                                 <div class="row align-items-center d-md-flex">
                                     <div class="col-lg-6 col-md-6">
-                                        <h3>{{number_format($dashboardDetail?->total_on_leave) ?? 0}}</h3>
+                                        <h3>{{ number_format($dashboardDetail?->total_on_leave) ?? 0 }}</h3>
                                     </div>
                                     <div class="col-lg-6 col-md-6 text-md-end dash-icon mt-md-0 mt-2">
                                         <i class="link-icon" data-feather="file-minus"> </i>
@@ -160,7 +229,7 @@
                                 </div>
                                 <div class="row align-items-center d-md-flex">
                                     <div class="col-lg-6 col-md-6">
-                                        <h3>{{ number_format($dashboardDetail?->total_pending_leave_requests) ?? 0}}</h3>
+                                        <h3>{{ number_format($dashboardDetail?->total_pending_leave_requests) ?? 0 }}</h3>
                                     </div>
                                     <div class="col-lg-6 col-md-6 text-md-end dash-icon mt-md-0 mt-2">
                                         <i class="link-icon" data-feather="twitch"> </i>
@@ -179,7 +248,7 @@
                                 </div>
                                 <div class="row align-items-center d-md-flex">
                                     <div class="col-lg-6 col-md-6">
-                                        <h3>{{number_format($dashboardDetail?->total_checked_in_employee) ?? 0 }}</h3>
+                                        <h3>{{ number_format($dashboardDetail?->total_checked_in_employee) ?? 0 }}</h3>
                                     </div>
                                     <div class="col-lg-6 col-md-6 text-md-end dash-icon mt-md-0 mt-2">
                                         <i class="link-icon" data-feather="log-in"> </i>
@@ -197,7 +266,7 @@
                                 </div>
                                 <div class="row align-items-center d-md-fle">
                                     <div class="col-lg-6 col-md-6">
-                                        <h3>{{number_format($dashboardDetail?->total_checked_out_employee) ?? 0 }}</h3>
+                                        <h3>{{ number_format($dashboardDetail?->total_checked_out_employee) ?? 0 }}</h3>
                                     </div>
                                     <div class="col-lg-6 col-md-6 text-md-end dash-icon mt-md-0 mt-2">
                                         <i class="link-icon" data-feather="log-out"> </i>
@@ -214,7 +283,8 @@
                 <div class="col-xxl-3 col-xl-4 mb-4 d-flex">
                     <div class="card w-100">
                         <div class="card-body text-center clock-display">
-                            <div id="clockContainer" class="mb-3">
+                            <div id="clockContainer" class="mb-3"
+                                style="background: url({{ asset('assets/images/clock.jpg') }}) no-repeat;background-size: 100%;">
                                 <div id="hour"></div>
                                 <div id="minute"></div>
                                 <div id="second"></div>
@@ -223,30 +293,30 @@
                             <p id="date" class="text-primary fw-bolder mb-3"></p>
 
                             <div class="punch-btn mb-2 d-flex align-items-center justify-content-around">
-                                <button href="{{route('admin.dashboard.takeAttendance','checkIn')}}"
-                                        class="btn btn-lg btn-success  {{ $checkInAt ? 'd-none' : ''}}"
-                                        id="startWorkingBtn" data-audio="{{asset('assets/audio/beep.mp3')}}"
-                                >
+                                <button href="{{ route('admin.dashboard.takeAttendance', 'checkIn') }}"
+                                    class="btn btn-lg btn-success  {{ $checkInAt ? 'd-none' : '' }}" id="startWorkingBtn"
+                                    data-audio="{{ asset('assets/audio/beep.mp3') }}">
                                     Punch In
                                 </button>
-                                <button href="{{route('admin.dashboard.takeAttendance','checkOut')}}"
-                                        class="btn btn-lg btn-danger {{ $checkOutAt ? 'd-none' : ''}}"
-                                        id="stopWorkingBtn" data-audio="{{asset('assets/audio/beep.mp3')}}"
-                                >
+                                <button href="{{ route('admin.dashboard.takeAttendance', 'checkOut') }}"
+                                    class="btn btn-lg btn-danger {{ $checkOutAt ? 'd-none' : '' }}" id="stopWorkingBtn"
+                                    data-audio="{{ asset('assets/audio/beep.mp3') }}">
                                     Punch Out
                                 </button>
                             </div>
 
                             <div class="check-text d-flex align-items-center justify-content-around">
-                                <span >Check In At<p class="text-success fw-bold h5" id="checkInTime">{{$viewCheckIn}} </p></span>
-                                <span >Check Out At<p class="text-danger fw-bold h5" id="checkOutTime">{{$viewCheckOut}}  </p></span>
+                                <span>Check In At<p class="text-success fw-bold h5" id="checkInTime">{{ $viewCheckIn }} </p>
+                                </span>
+                                <span>Check Out At<p class="text-danger fw-bold h5" id="checkOutTime">{{ $viewCheckOut }}
+                                    </p></span>
                             </div>
                         </div>
                     </div>
                 </div>
             @endcan
         </div>
-        @canany(['project_detail','client_detail'])
+        @canany(['project_detail', 'client_detail'])
             @can('project_detail')
                 <div class="projectManagement">
                     <h4 class="mb-4">Project Management </h4>
@@ -270,7 +340,7 @@
                                             <h6 class="card-title mb-2">Total Projects</h6>
                                             <div class="row align-items-center d-md-flex">
                                                 <div class="col-lg-6 col-md-6">
-                                                    <h3>{{number_format($projectCardDetail['total_projects'])}}</h3>
+                                                    <h3>{{ number_format($projectCardDetail['total_projects']) }}</h3>
                                                 </div>
                                                 <div class="col-lg-6 col-md-6 text-md-end dash-icon mt-md-0 mt-2">
                                                     <i class="link-icon" data-feather="layers"> </i>
@@ -286,7 +356,7 @@
                                             <h6 class="card-title mb-2">Pending Projects</h6>
                                             <div class="row align-items-center d-md-flex">
                                                 <div class="col-lg-6 col-md-6">
-                                                    <h3>{{number_format($projectCardDetail['not_started'])}}</h3>
+                                                    <h3>{{ number_format($projectCardDetail['not_started']) }}</h3>
                                                 </div>
                                                 <div class="col-lg-6 col-md-6 text-md-end dash-icon mt-md-0 mt-2">
                                                     <i class="link-icon" data-feather="layers"> </i>
@@ -302,7 +372,7 @@
                                             <h6 class="card-title mb-2">On Hold Projects</h6>
                                             <div class="row align-items-center d-md-flex">
                                                 <div class="col-lg-6 col-md-6">
-                                                    <h3>{{number_format($projectCardDetail['on_hold'])}}</h3>
+                                                    <h3>{{ number_format($projectCardDetail['on_hold']) }}</h3>
                                                 </div>
                                                 <div class="col-lg-6 col-md-6 text-md-end dash-icon mt-md-0 mt-2">
                                                     <i class="link-icon" data-feather="layers"> </i>
@@ -318,7 +388,7 @@
                                             <h6 class="card-title mb-2">In Progress Projects</h6>
                                             <div class="row align-items-center d-md-flex">
                                                 <div class="col-lg-6 col-md-6">
-                                                    <h3>{{number_format($projectCardDetail['in_progress'])}}</h3>
+                                                    <h3>{{ number_format($projectCardDetail['in_progress']) }}</h3>
                                                 </div>
                                                 <div class="col-lg-6 col-md-6 text-md-end dash-icon mt-md-0 mt-2">
                                                     <i class="link-icon" data-feather="layers"> </i>
@@ -334,7 +404,7 @@
                                             <h6 class="card-title mb-2">Finished Projects</h6>
                                             <div class="row align-items-center d-md-flex">
                                                 <div class="col-lg-6 col-md-6">
-                                                    <h3>{{number_format($projectCardDetail['completed'])}}</h3>
+                                                    <h3>{{ number_format($projectCardDetail['completed']) }}</h3>
                                                 </div>
                                                 <div class="col-lg-6 col-md-6 text-md-end dash-icon mt-md-0 mt-2">
                                                     <i class="link-icon" data-feather="layers"> </i>
@@ -350,7 +420,7 @@
                                             <h6 class="card-title mb-2">Cancelled Projects</h6>
                                             <div class="row align-items-center d-md-flex">
                                                 <div class="col-lg-6 col-md-6">
-                                                    <h3>{{number_format($projectCardDetail['cancelled'])}}</h3>
+                                                    <h3>{{ number_format($projectCardDetail['cancelled']) }}</h3>
                                                 </div>
                                                 <div class="col-lg-6 col-md-6 text-md-end dash-icon mt-md-0 mt-2">
                                                     <i class="link-icon" data-feather="layers"> </i>
@@ -371,7 +441,7 @@
                         <div class="card card-table flex-fill">
                             <div class="card-header d-flex align-items-center justify-content-between">
                                 <h3 class="card-title mb-0">Top Clients</h3>
-                                <a href="{{route('admin.clients.index')}}">View All Clients</a>
+                                <a href="{{ route('admin.clients.index') }}">View All Clients</a>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -389,19 +459,20 @@
                                                 <tr>
                                                     <td class="table-avatar w-35">
 
-                                                            <a href="{{route('admin.clients.show',$client->id)}}" class="avatar">
-                                                                <img alt=""  src="{{asset(\App\Models\Client::UPLOAD_PATH.$client->avatar)}}">
-                                                                <span class="ms-1">{{ucfirst($client->name)}}</span>
-                                                            </a>
+                                                        <a href="{{ route('admin.clients.show', $client->id) }}" class="avatar">
+                                                            <img alt=""
+                                                                src="{{ asset(\App\Models\Client::UPLOAD_PATH . $client->avatar) }}">
+                                                            <span class="ms-1">{{ ucfirst($client->name) }}</span>
+                                                        </a>
 
                                                     </td>
-                                                    <td class="text-center">{{$client->email}}</td>
+                                                    <td class="text-center">{{ $client->email }}</td>
                                                     <td class="text-center">
-                                                        {{$client->contact_no}}
+                                                        {{ $client->contact_no }}
                                                     </td>
 
                                                     <td class="text-center">
-                                                        {{$client->project_count}}
+                                                        {{ $client->project_count }}
                                                     </td>
                                                 </tr>
                                             @empty
@@ -434,15 +505,15 @@
             </div>
 
             @can('project_detail')
-                    <div class="card card-table flex-fill">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h3 class="card-title mb-0">Recent Projects</h3>
-                            <a href="{{route('admin.projects.index')}}">View All Projects</a>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table custom-table mb-0">
-                                    <thead>
+                <div class="card card-table flex-fill">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0">Recent Projects</h3>
+                        <a href="{{ route('admin.projects.index') }}">View All Projects</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table custom-table mb-0">
+                                <thead>
                                     <tr>
                                         <th class="w-25">Title</th>
                                         <th class="text-center">Date Start</th>
@@ -451,49 +522,49 @@
                                         <th class="text-center">Completion</th>
                                         <th class="text-center">Priority</th>
                                     </tr>
-                                    </thead>
-                                    <tbody>
+                                </thead>
+                                <tbody>
                                     @forelse($recentProjects as $key => $project)
                                         <tr>
                                             <td class="w-25">
-                                                <a href="{{route('admin.projects.show',$project->id)}}" >{{ucfirst($project->name)}} </a>
+                                                <a href="{{ route('admin.projects.show', $project->id) }}">{{ ucfirst($project->name) }}
+                                                </a>
                                             </td>
-                                            <td class="text-center">{{\App\Helpers\AppHelper::formatDateForView($project->start_date)}}</td>
                                             <td class="text-center">
-                                                {{\App\Helpers\AppHelper::formatDateForView($project->deadline)}}
+                                                {{ \App\Helpers\AppHelper::formatDateForView($project->start_date) }}</td>
+                                            <td class="text-center">
+                                                {{ \App\Helpers\AppHelper::formatDateForView($project->deadline) }}
                                             </td>
 
                                             <td class="member-listed text-center">
                                                 @forelse($project->projectLeaders as $key => $leader)
-
-                                                    <button type="button" class="p-0 border-0 bg-transparent ms-n3 " disabled data-toggle="tooltip" data-placement="top" title="{{ $leader->user ? ucfirst($leader->user->name) : 'Project Leader' }}">
+                                                    <button type="button" class="p-0 border-0 bg-transparent ms-n3 " disabled
+                                                        data-toggle="tooltip" data-placement="top"
+                                                        title="{{ $leader->user ? ucfirst($leader->user->name) : 'Project Leader' }}">
                                                         <img class="rounded-circle" style="object-fit: cover"
-                                                             src="{{ $leader->user ? asset(\App\Models\User::AVATAR_UPLOAD_PATH.$leader->user->avatar):
-                                                                    asset('assets/images/img.png')
-                                                        }}"
-                                                             alt="profile">
+                                                            src="{{ $leader->user
+                                                                ? asset(\App\Models\User::AVATAR_UPLOAD_PATH . $leader->user->avatar)
+                                                                : asset('assets/images/img.png') }}"
+                                                            alt="profile">
                                                     </button>
 
                                                 @empty
-
                                                 @endforelse
                                             </td>
                                             <td class="text-center">
                                                 <div class="progress">
-                                                    <div class="progress-bar color2 rounded"
-                                                         role="progressbar"
-                                                         style="{{\App\Helpers\AppHelper::getProgressBarStyle($project->getProjectProgressInPercentage())}}"
-                                                         aria-valuenow="25"
-                                                         aria-valuemin="0"
-                                                         aria-valuemax="100" >
-                                                        <span>{{($project->getProjectProgressInPercentage())}} %</span>
+                                                    <div class="progress-bar color2 rounded" role="progressbar"
+                                                        style="{{ \App\Helpers\AppHelper::getProgressBarStyle($project->getProjectProgressInPercentage()) }}"
+                                                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                                        <span>{{ $project->getProjectProgressInPercentage() }} %</span>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td class="text-center">
-                                                    <span class="btn btn-{{$projectPriority[$project->priority]}} btn-xs cursor-default">
-                                                            {{ucfirst($project->priority)}}
-                                                    </span>
+                                                <span
+                                                    class="btn btn-{{ $projectPriority[$project->priority] }} btn-xs cursor-default">
+                                                    {{ ucfirst($project->priority) }}
+                                                </span>
                                             </td>
                                         </tr>
                                     @empty
@@ -503,27 +574,19 @@
                                             </td>
                                         </tr>
                                     @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+                </div>
             @endcan
         @endcanany
     </section>
 @endsection
 
-<script src="{{asset('assets/vendors/chartjs/Chart.min.js')}}"></script>
+<script src="{{ asset('assets/vendors/chartjs/Chart.min.js') }}"></script>
+
 
 @section('scripts')
     @include('admin.dashboard_scripts')
 @endsection
-
-
-
-
-
-
-
-
-

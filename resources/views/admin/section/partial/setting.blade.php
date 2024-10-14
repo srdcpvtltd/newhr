@@ -146,12 +146,24 @@
                     </li>
                 @endcan
 
-                <li  class="nav-item {{request()->routeIs('admin.leadsSetting.index.*')  ? 'active' : '' }}">
+                @can('leads_setting')
+                    <li  class="nav-item {{request()->routeIs('admin.leadsSetting.index.*')  ? 'active' : '' }}">
                     <a
                         href="{{route('admin.leadsSetting.index')}}"
                         data-href="{{route('admin.leadsSetting.index')}}"
                         class="nav-link {{request()->routeIs('admin.leadsSetting.index.*') ? 'active' : ''}}"> Leads Setting</a>
                 </li>
+                @endcan
+
+                @can('followup_setting')
+                <li  class="nav-item {{request()->routeIs('admin.followupSetting.index.*')  ? 'active' : '' }}">
+                <a
+                    href="{{route('admin.followupSetting.index')}}"
+                    data-href="{{route('admin.followupSetting.index')}}"
+                    class="nav-link {{request()->routeIs('admin.followupSetting.index.*') ? 'active' : ''}}"> Follow-Up Setting</a>
+            </li>
+            @endcan
+                
 
 
             </ul>
